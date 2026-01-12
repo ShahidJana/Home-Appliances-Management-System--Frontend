@@ -122,6 +122,33 @@ export const useEmployeeController = () => {
         }
     };
 
+    const updateEmployee = async (id, employeeData) => {
+        setLoading(true);
+        try {
+            const data = await EmployeeModel.update(id, employeeData);
+            setEmployees(prev => prev.map(emp => emp._id === id ? { ...emp, ...data } : emp));
+            return data;
+        } catch (err) {
+            setError(err.message);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const deleteEmployee = async (id) => {
+        setLoading(true);
+        try {
+            await EmployeeModel.delete(id);
+            setEmployees(prev => prev.filter(emp => emp._id !== id));
+        } catch (err) {
+            setError(err.message);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         employees,
         summary,
@@ -138,6 +165,8 @@ export const useEmployeeController = () => {
         markAttendance,
         createEmployee: addEmployee,
         autoMarkAllPresent,
-        editAttendance
+        editAttendance,
+        updateEmployee,
+        deleteEmployee
     };
 };

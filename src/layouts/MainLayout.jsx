@@ -21,11 +21,11 @@ const Sidebar = ({ isOpen, toggle }) => {
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+    { name: 'Vendors', icon: Truck, path: '/vendors' },
+    { name: 'Employees & Attendance', icon: Users2, path: '/attendance' },
     { name: 'Customers', icon: Users, path: '/customers' },
     { name: 'Inventory', icon: Package, path: '/inventory' },
     { name: 'Sales & Plans', icon: FileText, path: '/plans' },
-    { name: 'Vendors', icon: Truck, path: '/vendors' },
-    { name: 'Employees & Attendance', icon: Users2, path: '/attendance' },
     { name: 'Reports', icon: LineChart, path: '/reports' },
   ];
 
@@ -35,190 +35,59 @@ const Sidebar = ({ isOpen, toggle }) => {
   };
 
   return (
-    <div className={`sidebar glass-card ${isOpen ? 'mobile-open' : ''}`}>
-      <div className="sidebar-header">
-        <div className="logo-icon">K</div>
-        <div className="logo-text">
-          <h3>Karim</h3>
-          <span>Electronics</span>
+    <div className={`
+        fixed lg:sticky top-0 lg:top-5 h-screen lg:h-[calc(100vh-40px)] 
+        w-[280px] lg:m-5 z-[1001] transition-all duration-300 ease-in-out
+        glass-card flex flex-col p-6
+        ${isOpen ? 'left-0 rounded-none' : '-left-[300px] lg:left-0'}
+    `}>
+      <div className="flex items-center gap-3 px-4 mb-10">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-indigo-500/20">K</div>
+        <div className="flex flex-col">
+          <h3 className="text-lg font-bold leading-none text-white">Karim</h3>
+          <span className="text-xs text-slate-400 uppercase tracking-widest mt-0.5">Electronics</span>
         </div>
-        <button className="mobile-only close-sidebar" onClick={toggle}>
+        <button className="lg:hidden ml-auto text-white hover:bg-white/10 p-1 rounded-lg transition-colors" onClick={toggle}>
           <X size={20} />
         </button>
       </div>
 
-      <nav className="sidebar-nav">
+      <nav className="flex-1 flex flex-col gap-2">
         {menuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
             onClick={() => window.innerWidth < 1024 && toggle()}
-            className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+            className={`
+                flex items-center gap-3 px-4 py-3 rounded-xl relative transition-all duration-300
+                ${location.pathname === item.path
+                ? 'text-white bg-indigo-500/10'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'}
+            `}
           >
             <item.icon size={20} />
-            <span>{item.name}</span>
-            {location.pathname === item.path && <div className="active-glow" />}
+            <span className="font-medium">{item.name}</span>
+            {location.pathname === item.path && (
+              <div className="absolute left-0 w-1 h-1/2 bg-indigo-500 rounded-r-md shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+            )}
           </Link>
         ))}
       </nav>
 
-      <div className="sidebar-user">
-        <div className="user-info">
-          <div className="user-avatar">
+      <div className="mt-5 p-4 bg-white/5 rounded-2xl flex items-center justify-between border border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
             {user?.name?.[0] || 'A'}
           </div>
-          <div className="user-details">
-            <p className="user-name">{user?.name || 'Admin'}</p>
-            <p className="user-role">{user?.role || 'Senior Officer'}</p>
+          <div className="flex flex-col">
+            <p className="text-sm font-bold text-white">{user?.name || 'Admin'}</p>
+            <p className="text-[10px] text-slate-400 uppercase tracking-wide">{user?.role || 'Senior Officer'}</p>
           </div>
         </div>
-        <button className="logout-btn" onClick={handleLogout}>
+        <button className="text-slate-400 hover:text-red-400 transition-colors p-1.5 hover:bg-red-500/10 rounded-lg" onClick={handleLogout}>
           <LogOut size={18} />
         </button>
       </div>
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .sidebar {
-          width: 280px;
-          height: calc(100vh - 40px);
-          margin: 20px;
-          display: flex;
-          flex-direction: column;
-          padding: 24px 12px;
-          position: sticky;
-          top: 20px;
-          z-index: 1001;
-        }
-        .close-sidebar {
-          margin-left: auto;
-          background: none;
-          border: none;
-          color: white;
-        }
-        .sidebar-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 0 16px;
-          margin-bottom: 40px;
-        }
-        .logo-icon {
-          width: 40px;
-          height: 40px;
-          background: linear-gradient(135deg, var(--primary), var(--secondary));
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 20px;
-        }
-        .logo-text h3 {
-          font-size: 18px;
-          line-height: 1;
-        }
-        .logo-text span {
-          font-size: 12px;
-          color: var(--text-muted);
-          letter-spacing: 1px;
-          text-transform: uppercase;
-        }
-        .sidebar-nav {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .nav-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
-          border-radius: 12px;
-          color: var(--text-muted);
-          position: relative;
-          transition: all 0.3s ease;
-        }
-        .nav-item:hover {
-          color: white;
-          background: rgba(255, 255, 255, 0.04);
-        }
-        .nav-item.active {
-          color: white;
-          background: rgba(99, 102, 241, 0.1);
-        }
-        .active-glow {
-          position: absolute;
-          left: 0;
-          width: 4px;
-          height: 50%;
-          background: var(--primary);
-          border-radius: 0 4px 4px 0;
-          box-shadow: 0 0 10px var(--primary);
-        }
-        .sidebar-user {
-          margin-top: 20px;
-          padding: 16px;
-          background: rgba(255, 255, 255, 0.03);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .user-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .user-avatar {
-          width: 36px;
-          height: 36px;
-          background: var(--primary);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-        }
-        .user-name {
-          font-size: 14px;
-          font-weight: 600;
-          margin: 0;
-        }
-        .user-role {
-          font-size: 11px;
-          color: var(--text-muted);
-          margin: 0;
-        }
-        .logout-btn {
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          display: flex;
-          transition: color 0.3s;
-        }
-        .logout-btn:hover {
-          color: var(--danger);
-        }
-        @media (min-width: 1025px) {
-          .mobile-only { display: none; }
-        }
-        @media (max-width: 1024px) {
-          .sidebar {
-            position: fixed;
-            left: -300px;
-            top: 0;
-            margin: 0;
-            height: 100vh;
-            border-radius: 0;
-            transition: left 0.3s ease-in-out;
-          }
-          .sidebar.mobile-open {
-            left: 0;
-          }
-        }
-      `}} />
     </div>
   );
 };
@@ -232,86 +101,22 @@ const Header = ({ toggleSidebar }) => {
   }, []);
 
   return (
-    <header className="main-header">
-      <div className="header-left">
-        <button className="burger-menu" onClick={toggleSidebar}>
+    <header className="flex justify-between items-center px-5 py-5 lg:px-10 lg:py-8 lg:mb-2">
+      <div className="flex items-center gap-5 flex-1">
+        <button className="lg:hidden text-white hover:bg-white/10 p-2 rounded-lg transition-colors" onClick={toggleSidebar}>
           <Menu size={24} />
         </button>
-        <div className="search-bar">
-          <input type="text" placeholder="Quick Search (IMEI, CNIC, Phone...)" className="input-field" />
+      </div>
+      <div className="flex items-center gap-3">
+        <button className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-800/40 border border-white/10 text-white hover:bg-white/10 transition-colors">
+          <Bell size={20} />
+        </button>
+        <div className="text-xs font-semibold text-slate-400 whitespace-nowrap bg-white/5 px-4 py-2 rounded-xl border border-white/5 flex items-center gap-2">
+          <span className="text-white font-bold">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          <span className="opacity-50">•</span>
+          <span>{currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
       </div>
-      <div className="header-actions">
-        <button className="action-btn"><Bell size={20} /></button>
-        <div className="date-display">
-          <span className="time-part">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          <span className="date-sep">•</span>
-          <span className="date-part">{currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-        </div>
-      </div>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .main-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 20px 40px;
-        }
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex: 1;
-        }
-        .date-sep {
-          margin: 0 8px;
-          opacity: 0.5;
-        }
-        .time-part {
-          color: white;
-          font-weight: 700;
-        }
-        .burger-menu {
-          display: none;
-          background: none;
-          border: none;
-          color: white;
-        }
-        .search-bar {
-          width: 100%;
-          max-width: 400px;
-        }
-        .header-actions {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .action-btn {
-          background: var(--glass-bg);
-          border: 1px solid var(--glass-border);
-          color: white;
-          width: 36px;
-          height: 36px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .date-display {
-          font-size: 13px;
-          font-weight: 600;
-          color: var(--text-muted);
-          white-space: nowrap;
-          background: rgba(255, 255, 255, 0.03);
-          padding: 8px 16px;
-          border-radius: 10px;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        @media (max-width: 1024px) {
-          .burger-menu { display: block; }
-          .main-header { padding: 16px 20px; }
-        }
-      `}} />
     </header>
   );
 };
@@ -320,46 +125,17 @@ const MainLayout = ({ children }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="layout-root">
+    <div className="flex min-h-screen bg-[var(--bg-main)] relative">
       {isSidebarOpen && (
-        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
       <Sidebar isOpen={isSidebarOpen} toggle={() => setSidebarOpen(false)} />
-      <div className="main-content">
+      <div className="flex-1 flex flex-col min-w-0">
         <Header toggleSidebar={() => setSidebarOpen(true)} />
-        <main className="page-body">
+        <main className="flex-1 px-5 pb-5 lg:px-10 lg:pb-10">
           {children}
         </main>
       </div>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .layout-root {
-          display: flex;
-          min-height: 100vh;
-          background: var(--bg-main);
-          position: relative;
-        }
-        .sidebar-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.5);
-          backdrop-filter: blur(4px);
-          z-index: 1000;
-        }
-        .main-content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-        }
-        .page-body {
-          padding: 0 40px 40px 40px;
-          flex: 1;
-        }
-        @media (max-width: 768px) {
-          .page-body { padding: 0 16px 16px 16px; }
-        }
-      `}} />
     </div>
   );
 };

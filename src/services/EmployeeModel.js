@@ -44,5 +44,15 @@ export const EmployeeModel = {
     getAttendanceHistory: async (id) => {
         const response = await api.get(`/employees/${id}/attendance/history`);
         return response.data;
+    },
+
+    update: async (id, employeeData) => {
+        const response = await api.put(`/employees/${id}`, employeeData);
+        return response.data;
+    },
+
+    delete: async (id) => {
+        const response = await api.delete(`/employees/${id}`);
+        return response.data;
     }
 };

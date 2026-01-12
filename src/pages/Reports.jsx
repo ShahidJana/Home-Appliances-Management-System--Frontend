@@ -13,17 +13,20 @@ import {
 } from 'lucide-react';
 
 const ReportCard = ({ title, value, trend, trendValue, icon: Icon }) => (
-    <div className="glass-card report-card">
-        <div className="report-card-header">
-            <div className="icon-box"><Icon size={20} /></div>
-            <div className={`trend-pill ${trend}`}>
+    <div className="glass-card p-6">
+        <div className="flex justify-between mb-5">
+            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[var(--primary)]">
+                <Icon size={20} />
+            </div>
+            <div className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 ${trend === 'up' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                }`}>
                 {trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                 <span>{trendValue}</span>
             </div>
         </div>
-        <div className="report-card-body">
-            <p className="report-title">{title}</p>
-            <h3>{value}</h3>
+        <div>
+            <p className="text-xs text-slate-400 mb-1 font-medium">{title}</p>
+            <h3 className="text-2xl font-bold text-white">{value}</h3>
         </div>
     </div>
 );
@@ -33,26 +36,26 @@ const Reports = () => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="reports-page"
+            className="flex flex-col gap-8"
         >
-            <div className="page-header">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h1>Intelligence Hub</h1>
-                    <p>Financial analytics and operational performance auditing</p>
+                    <h1 className="text-2xl md:text-3xl font-bold mb-2">Intelligence Hub</h1>
+                    <p className="text-slate-400">Financial analytics and operational performance auditing</p>
                 </div>
-                <div className="header-actions">
-                    <button className="glass-btn with-icon">
+                <div className="flex gap-4">
+                    <button className="px-5 py-2.5 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-colors flex items-center gap-2">
                         <Calendar size={18} />
                         <span>Oct 2026</span>
                     </button>
-                    <button className="premium-btn with-icon">
+                    <button className="premium-btn">
                         <Download size={18} />
                         <span>Export PDF</span>
                     </button>
                 </div>
             </div>
 
-            <div className="reports-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <ReportCard
                     title="Gross Revenue"
                     value="Rs. 4.2M"
@@ -83,128 +86,41 @@ const Reports = () => {
                 />
             </div>
 
-            <div className="analytics-section">
-                <div className="glass-card chart-container large">
-                    <div className="chart-header">
-                        <h3>Revenue Projection</h3>
-                        <div className="chart-tabs">
-                            <button className="tab-min active">Weekly</button>
-                            <button className="tab-min">Monthly</button>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="glass-card p-6 lg:col-span-2">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-bold text-white">Revenue Projection</h3>
+                        <div className="flex gap-2 bg-black/10 p-1 rounded-lg">
+                            <button className="bg-[var(--primary)] text-white text-[11px] font-semibold px-3 py-1 rounded-md">Weekly</button>
+                            <button className="bg-transparent border-none text-[11px] font-semibold text-slate-400 px-3 py-1 rounded-md hover:text-white transition-colors">Monthly</button>
                         </div>
                     </div>
-                    <div className="visual-placeholder">
+                    <div className="h-[300px] bg-white/[0.01] border border-dashed border-white/10 rounded-2xl flex items-center justify-center relative overflow-hidden group">
                         {/* Dynamic chart logic would go here */}
-                        <div className="wave-bg"></div>
-                        <p className="placeholder-text">Revenue Growth Visualization Engine</p>
+                        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-indigo-500/10 to-transparent"></div>
+                        <p className="text-sm text-slate-500 opacity-50 italic group-hover:opacity-80 transition-opacity">Revenue Growth Visualization Engine</p>
                     </div>
                 </div>
 
-                <div className="glass-card log-container">
-                    <div className="log-header">
-                        <h3>Audit Log</h3>
-                        <button className="text-btn">View All</button>
+                <div className="glass-card p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-bold text-white">Audit Log</h3>
+                        <button className="text-sm text-[var(--primary)] hover:text-indigo-400 transition-colors font-medium">View All</button>
                     </div>
-                    <div className="log-list">
+                    <div className="flex flex-col gap-4">
                         {[1, 2, 3, 4, 5].map(i => (
-                            <div key={i} className="log-item">
-                                <div className="log-dot"></div>
-                                <div className="log-content">
-                                    <p className="log-text">Inventory Stock Reconciled by <strong>Admin</strong></p>
-                                    <span className="log-time">2 hours ago</span>
+                            <div key={i} className="flex items-center gap-4 border-b border-white/5 pb-4 last:border-0 last:pb-0">
+                                <div className="w-2 h-2 rounded-full bg-[var(--primary)] shadow-[0_0_10px_var(--primary)] shrink-0"></div>
+                                <div className="flex-1">
+                                    <p className="text-sm text-slate-200 m-0 leading-relaxed">Inventory Stock Reconciled by <strong className="text-pink-500">Admin</strong></p>
+                                    <span className="text-[11px] text-slate-500">2 hours ago</span>
                                 </div>
-                                <ChevronRight size={14} className="text-muted" />
+                                <ChevronRight size={14} className="text-slate-600" />
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        .reports-page {
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
-        }
-        .reports-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 24px;
-        }
-        .report-card { padding: 24px; }
-        .report-card-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 20px;
-        }
-        .icon-box {
-          width: 40px;
-          height: 40px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--primary);
-        }
-        .trend-pill {
-          padding: 4px 8px;
-          border-radius: 20px;
-          font-size: 11px;
-          font-weight: 700;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .trend-pill.up { background: rgba(16, 185, 129, 0.1); color: #34d399; }
-        .trend-pill.down { background: rgba(239, 68, 68, 0.1); color: #f87171; }
-        .report-title { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
-        .report-card-body h3 { font-size: 24px; font-weight: 700; }
-
-        .analytics-section {
-          display: grid;
-          grid-template-columns: 2fr 1fr;
-          gap: 24px;
-        }
-        .chart-container, .log-container { padding: 24px; }
-        .chart-header, .log-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 24px;
-        }
-        .chart-tabs { display: flex; gap: 8px; background: rgba(0,0,0,0.1); padding: 4px; border-radius: 8px; }
-        .tab-min { background: none; border: none; font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 4px 12px; border-radius: 6px; }
-        .tab-min.active { background: var(--primary); color: white; }
-        
-        .visual-placeholder {
-          height: 300px;
-          background: rgba(255,255,255,0.01);
-          border: 1px dashed var(--border-color);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-          overflow: hidden;
-        }
-        .wave-bg {
-          position: absolute;
-          bottom: 0;
-          width: 100%;
-          height: 100px;
-          background: linear-gradient(to top, rgba(99, 102, 241, 0.1), transparent);
-        }
-        .placeholder-text { font-size: 14px; color: var(--text-muted); opacity: 0.5; font-style: italic; }
-
-        .log-list { display: flex; flex-direction: column; gap: 16px; }
-        .log-item { display: flex; align-items: center; gap: 16px; }
-        .log-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
-        .log-content { flex: 1; }
-        .log-text { font-size: 13px; margin: 0; color: var(--text-main); }
-        .log-text strong { color: var(--secondary); }
-        .log-time { font-size: 11px; color: var(--text-muted); }
-      `}} />
         </motion.div>
     );
 };

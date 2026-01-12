@@ -31,17 +31,17 @@ const InventoryList = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="inventory-page"
+      className="flex flex-col gap-8"
     >
-      <div className="page-header">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
-          <h1>Inventory Assets</h1>
-          <p>Real-time stock management and valuation</p>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Inventory Assets</h1>
+          <p className="text-slate-400">Real-time stock management and valuation</p>
         </div>
-        <div className="header-btns">
-          <button className="glass-btn">Import CSV</button>
+        <div className="flex gap-4">
+          <button className="px-5 py-2.5 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-colors">Import CSV</button>
           {isAdmin && (
-            <button className="premium-btn with-icon">
+            <button className="premium-btn">
               <Plus size={18} />
               <span>Add Product</span>
             </button>
@@ -50,49 +50,56 @@ const InventoryList = () => {
       </div>
 
       {isAdmin && (
-        <div className="inventory-summary">
-          <div className="summary-item">
-            <Package className="text-primary" />
-            <div className="summary-details">
-              <span className="label">Total Stock</span>
-              <span className="value">{report?.totalItem || 0} Units</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="glass-card p-6 flex items-center gap-5">
+            <Package className="text-[var(--primary)]" size={32} />
+            <div className="flex flex-col">
+              <span className="text-xs text-slate-400 uppercase tracking-wider mb-1">Total Stock</span>
+              <span className="text-xl font-bold text-white">{report?.totalItem || 0} Units</span>
             </div>
           </div>
-          <div className="summary-item">
-            <ShieldCheck className="text-success" />
-            <div className="summary-details">
-              <span className="label">Available</span>
-              <span className="value">{report?.availableItem || 0} Units</span>
+          <div className="glass-card p-6 flex items-center gap-5">
+            <ShieldCheck className="text-emerald-400" size={32} />
+            <div className="flex flex-col">
+              <span className="text-xs text-slate-400 uppercase tracking-wider mb-1">Available</span>
+              <span className="text-xl font-bold text-white">{report?.availableItem || 0} Units</span>
             </div>
           </div>
-          <div className="summary-item">
-            <AlertTriangle className="text-warning" />
-            <div className="summary-details">
-              <span className="label">Low Stock</span>
-              <span className="value">4 Models</span>
+          <div className="glass-card p-6 flex items-center gap-5">
+            <AlertTriangle className="text-amber-400" size={32} />
+            <div className="flex flex-col">
+              <span className="text-xs text-slate-400 uppercase tracking-wider mb-1">Low Stock</span>
+              <span className="text-xl font-bold text-white">4 Models</span>
             </div>
           </div>
-          <div className="summary-item">
-            <Database className="text-secondary" />
-            <div className="summary-details">
-              <span className="label">Total Valuation</span>
-              <span className="value">Rs. {report?.totalInvestment?.toLocaleString() || 0}</span>
+          <div className="glass-card p-6 flex items-center gap-5">
+            <Database className="text-pink-500" size={32} />
+            <div className="flex flex-col">
+              <span className="text-xs text-slate-400 uppercase tracking-wider mb-1">Total Valuation</span>
+              <span className="text-xl font-bold text-white">Rs. {report?.totalInvestment?.toLocaleString() || 0}</span>
             </div>
           </div>
         </div>
       )}
 
-      <div className="glass-card inventory-table-container">
-        <div className="table-controls">
-          <div className="search-box">
-            <Search size={18} />
-            <input type="text" placeholder="Filter by product name, model, IMEI..." />
+      <div className="glass-card overflow-hidden">
+        <div className="p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-white/10">
+          <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-xl border border-white/5 w-full md:w-80">
+            <Search size={18} className="text-slate-400" />
+            <input
+              type="text"
+              placeholder="Filter by product name, model, IMEI..."
+              className="bg-transparent border-none outline-none text-white text-sm w-full placeholder:text-slate-500"
+            />
           </div>
-          <div className="tab-filters">
+          <div className="flex bg-black/20 p-1 rounded-xl gap-1">
             {['All', 'Available', 'Sold', 'Defective'].map(status => (
               <button
                 key={status}
-                className={`tab-btn ${filterStatus === status ? 'active' : ''}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${filterStatus === status
+                    ? 'bg-[var(--primary)] text-white shadow-lg'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
                 onClick={() => setFilterStatus(status)}
               >
                 {status}
@@ -101,185 +108,55 @@ const InventoryList = () => {
           </div>
         </div>
 
-        <table className="inventory-table">
-          <thead>
-            <tr>
-              <th>Product Details</th>
-              <th>SKU / IMEI</th>
-              <th>Vendor</th>
-              {isAdmin && <th>Purchase Price</th>}
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, i) => (
-              <tr key={item._id}>
-                <td>
-                  <div className="product-cell">
-                    <div className="product-icon"><Layers size={16} /></div>
-                    <div>
-                      <div className="product-name">{item.productName}</div>
-                      <div className="product-model">{item.model} • {item.company}</div>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div className="sku-text">{item.sku}</div>
-                  <div className="imei-text">{item.imei1 || 'N/A'}</div>
-                </td>
-                <td>{item.vendor?.name}</td>
-                {isAdmin && <td><span className="price-tag">Rs. {item.purchasePrice?.toLocaleString()}</span></td>}
-                <td>
-                  <span className={`status-tag ${item.status.toLowerCase()}`}>
-                    {item.status}
-                  </span>
-                </td>
-                <td>
-                  <button className="action-dots"><MoreVertical size={16} /></button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-white/5">
+                <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Product Details</th>
+                <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">SKU / IMEI</th>
+                <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Vendor</th>
+                {isAdmin && <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Purchase Price</th>}
+                <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Status</th>
+                <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {items.map((item, i) => (
+                <tr key={item._id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                  <td className="p-4 md:p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-[var(--primary)] border border-white/10 shrink-0">
+                        <Layers size={18} />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-white mb-0.5">{item.productName}</div>
+                        <div className="text-xs text-slate-400">{item.model} • {item.company}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4 md:p-6">
+                    <div className="font-medium text-[var(--primary)] text-sm mb-0.5">{item.sku}</div>
+                    <div className="text-xs text-slate-400 font-mono tracking-wide">{item.imei1 || 'N/A'}</div>
+                  </td>
+                  <td className="p-4 md:p-6 text-sm text-slate-300">{item.vendor?.name}</td>
+                  {isAdmin && <td className="p-4 md:p-6"><span className="font-semibold text-white">Rs. {item.purchasePrice?.toLocaleString()}</span></td>}
+                  <td className="p-4 md:p-6">
+                    <span className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider border ${item.status === 'Available' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        item.status === 'Sold' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
+                          'bg-red-500/10 text-red-400 border-red-500/20'
+                      }`}>
+                      {item.status}
+                    </span>
+                  </td>
+                  <td className="p-4 md:p-6">
+                    <button className="text-slate-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5"><MoreVertical size={16} /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .inventory-page {
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
-        }
-        .header-btns {
-          display: flex;
-          gap: 16px;
-        }
-        .glass-btn {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid var(--border-color);
-          color: white;
-          padding: 10px 20px;
-          border-radius: 12px;
-          font-weight: 500;
-        }
-        .inventory-summary {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 24px;
-        }
-        .summary-item {
-          background: var(--glass-bg);
-          border: 1px solid var(--glass-border);
-          padding: 24px;
-          border-radius: 20px;
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-        .summary-details {
-          display: flex;
-          flex-direction: column;
-        }
-        .summary-details .label {
-          font-size: 12px;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        .summary-details .value {
-          font-size: 18px;
-          font-weight: 700;
-          color: white;
-        }
-        
-        .inventory-table-container {
-          padding: 0;
-          overflow: hidden;
-        }
-        .table-controls {
-          padding: 24px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-bottom: 1px solid var(--border-color);
-        }
-        .tab-filters {
-          display: flex;
-          background: rgba(0,0,0,0.2);
-          padding: 4px;
-          border-radius: 10px;
-          gap: 4px;
-        }
-        .tab-btn {
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          padding: 6px 16px;
-          border-radius: 8px;
-          font-size: 13px;
-          font-weight: 600;
-        }
-        .tab-btn.active {
-          background: var(--primary);
-          color: white;
-        }
-        
-        .inventory-table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-        .inventory-table th {
-          text-align: left;
-          padding: 16px 24px;
-          font-size: 13px;
-          color: var(--text-muted);
-          font-weight: 500;
-          background: rgba(255,255,255,0.02);
-        }
-        .inventory-table td {
-          padding: 16px 24px;
-          border-bottom: 1px solid var(--border-color);
-          font-size: 14px;
-        }
-        .product-cell {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-        .product-icon {
-          width: 36px;
-          height: 36px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--primary);
-        }
-        .product-name { font-weight: 600; margin-bottom: 2px; }
-        .product-model { font-size: 12px; color: var(--text-muted); }
-        .sku-text { font-weight: 500; color: var(--primary); font-size: 13px; }
-        .imei-text { font-size: 12px; color: var(--text-muted); font-family: monospace; }
-        .price-tag { font-weight: 600; color: #fff; }
-        
-        .status-tag {
-          padding: 4px 12px;
-          border-radius: 6px;
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-        }
-        .status-tag.available { background: rgba(16, 185, 129, 0.1); color: #34d399; }
-        .status-tag.sold { background: rgba(99, 102, 241, 0.1); color: #818cf8; }
-        .status-tag.defective { background: rgba(239, 68, 68, 0.1); color: #f87171; }
-        
-        .action-dots {
-          background: none;
-          border: none;
-          color: var(--text-muted);
-        }
-      `}} />
     </motion.div>
   );
 };

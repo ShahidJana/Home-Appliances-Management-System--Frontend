@@ -1,333 +1,152 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-    TrendingUp,
-    Users,
-    CreditCard,
-    Clock,
-    AlertCircle,
-    ArrowUpRight,
-    ChevronRight
+  TrendingUp,
+  Users,
+  CreditCard,
+  Clock,
+  AlertCircle,
+  ArrowUpRight,
+  ChevronRight
 } from 'lucide-react';
 import { useDashboardController } from '../hooks/useDashboardController';
 
 const StatCard = ({ title, value, subValue, icon: Icon, color }) => (
-    <motion.div
-        whileHover={{ y: -5 }}
-        className="glass-card stat-card"
-    >
-        <div className="stat-header">
-            <div className={`stat-icon ${color}`}>
-                <Icon size={24} />
-            </div>
-            <ArrowUpRight size={20} className="trend-arrow" />
-        </div>
-        <div className="stat-body">
-            <h3>{value}</h3>
-            <p className="stat-title">{title}</p>
-            {subValue && <p className="stat-subtitle">{subValue}</p>}
-        </div>
-    </motion.div>
+  <motion.div
+    whileHover={{ y: -5 }}
+    className="glass-card p-6"
+  >
+    <div className="flex justify-between items-start mb-5">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color === 'indigo' ? 'bg-indigo-500/15 text-indigo-400' :
+          color === 'pink' ? 'bg-pink-500/15 text-pink-400' :
+            color === 'orange' ? 'bg-amber-500/15 text-amber-400' :
+              'bg-red-500/15 text-red-400'
+        }`}>
+        <Icon size={24} />
+      </div>
+      <ArrowUpRight size={20} className="text-slate-400 opacity-50" />
+    </div>
+    <div>
+      <h3 className="text-2xl font-bold mb-1">{value}</h3>
+      <p className="text-sm text-slate-400 font-medium">{title}</p>
+      {subValue && <p className={`text-xs mt-1 ${color === 'red' ? 'text-red-400' : 'text-emerald-400'}`}>{subValue}</p>}
+    </div>
+  </motion.div>
 );
 
 const Dashboard = () => {
-    const { stats, loading } = useDashboardController();
+  const { stats, loading } = useDashboardController();
 
-    const container = {
-        hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
-    };
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
 
-    const item = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 }
-    };
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
 
-    if (loading) return <div className="loading-screen">Synthesizing Analytics...</div>;
+  if (loading) return <div className="h-full flex items-center justify-center text-lg text-slate-400">Synthesizing Analytics...</div>;
 
-    return (
-        <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="dashboard-wrapper"
-        >
-            <div className="page-header">
-                <div>
-                    <h1>Strategic Overview</h1>
-                    <p>Real-time analytics for Karim Electronics Enterprise</p>
+  return (
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="flex flex-col gap-8"
+    >
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Strategic Overview</h1>
+          <p className="text-slate-400">Real-time analytics for Karim Electronics Enterprise</p>
+        </div>
+        <button className="premium-btn">Generate Report</button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Active Plans"
+          value={stats?.activePlans || '0'}
+          subValue="+12% from last month"
+          icon={TrendingUp}
+          color="indigo"
+        />
+        <StatCard
+          title="Total Recovery"
+          value={`Rs. ${stats?.recoveryMonthWise?.[0]?.recovery?.toLocaleString() || '0'}`}
+          subValue={`${stats?.recoveryMonthWise?.[0]?.count || 0} Installments today`}
+          icon={CreditCard}
+          color="pink"
+        />
+        <StatCard
+          title="Pending Commitments"
+          value={stats?.commitments?.today || '0'}
+          subValue="Due for collection"
+          icon={Clock}
+          color="orange"
+        />
+        <StatCard
+          title="Overdue Sessions"
+          value={stats?.commitments?.overdue || '0'}
+          subValue="Requires immediate action"
+          icon={AlertCircle}
+          color="red"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div variants={item} className="glass-card p-6 lg:col-span-2">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-bold">Recent Installments</h3>
+            <button className="text-[var(--primary)] flex items-center gap-1 text-sm font-semibold hover:text-indigo-400 transition-colors">View All <ChevronRight size={16} /></button>
+          </div>
+          <div className="flex flex-col">
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr] px-4 py-3 text-xs text-slate-400 border-b border-white/10 uppercase tracking-wider font-semibold">
+              <span>Customer</span>
+              <span>Amount</span>
+              <span>Date</span>
+              <span>Status</span>
+            </div>
+            {/* Mock data until real recent transactions implemented */}
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="grid grid-cols-[2fr_1fr_1fr_1fr] px-4 py-4 items-center border-b border-white/5 hover:bg-white/[0.02] transition-colors last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center font-semibold text-xs">K</div>
+                  <span className="text-sm">Muhammad Khan</span>
                 </div>
-                <button className="premium-btn">Generate Report</button>
-            </div>
-
-            <div className="stats-grid">
-                <StatCard
-                    title="Active Plans"
-                    value={stats?.activePlans || '0'}
-                    subValue="+12% from last month"
-                    icon={TrendingUp}
-                    color="indigo"
-                />
-                <StatCard
-                    title="Total Recovery"
-                    value={`Rs. ${stats?.recoveryMonthWise?.[0]?.recovery?.toLocaleString() || '0'}`}
-                    subValue={`${stats?.recoveryMonthWise?.[0]?.count || 0} Installments today`}
-                    icon={CreditCard}
-                    color="pink"
-                />
-                <StatCard
-                    title="Pending Commitments"
-                    value={stats?.commitments?.today || '0'}
-                    subValue="Due for collection"
-                    icon={Clock}
-                    color="orange"
-                />
-                <StatCard
-                    title="Overdue Sessions"
-                    value={stats?.commitments?.overdue || '0'}
-                    subValue="Requires immediate action"
-                    icon={AlertCircle}
-                    color="red"
-                />
-            </div>
-
-            <div className="dashboard-grid">
-                <motion.div variants={item} className="glass-card table-section">
-                    <div className="section-header">
-                        <h3>Recent Installments</h3>
-                        <button className="text-btn">View All <ChevronRight size={16} /></button>
-                    </div>
-                    <div className="custom-table">
-                        <div className="table-header">
-                            <span>Customer</span>
-                            <span>Amount</span>
-                            <span>Date</span>
-                            <span>Status</span>
-                        </div>
-                        {/* Mock data until real recent transactions implemented */}
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="table-row">
-                                <div className="user-cell">
-                                    <div className="avatar-sm">K</div>
-                                    <span>Muhammad Khan</span>
-                                </div>
-                                <span className="amount-cell">Rs. 8,500</span>
-                                <span className="date-cell">Oct 12, 2026</span>
-                                <span className="status-badge paid">Approved</span>
-                            </div>
-                        ))}
-                    </div>
-                </motion.div>
-
-                <motion.div variants={item} className="glass-card summary-section">
-                    <h3>Collection Performance</h3>
-                    <div className="chart-placeholder">
-                        <div className="bar-grid">
-                            {[60, 80, 45, 90, 70, 85].map((h, i) => (
-                                <div key={i} className="bar-wrapper">
-                                    <motion.div
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${h}%` }}
-                                        transition={{ duration: 1, delay: i * 0.1 }}
-                                        className="chart-bar"
-                                    />
-                                    <span>Day {i + 1}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </motion.div>
-            </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        .dashboard-wrapper {
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
-        }
-        .page-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .page-header h1 {
-          font-size: 32px;
-          font-weight: 700;
-          margin-bottom: 4px;
-        }
-        .page-header p {
-          color: var(--text-muted);
-        }
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 24px;
-        }
-        .stat-card {
-          padding: 24px;
-        }
-        .stat-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 20px;
-        }
-        .stat-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .stat-icon.indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-        .stat-icon.pink { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
-        .stat-icon.orange { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-        .stat-icon.red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-        .trend-arrow {
-          color: var(--text-muted);
-          opacity: 0.5;
-        }
-        .stat-body h3 {
-          font-size: 24px;
-          font-weight: 700;
-          margin-bottom: 4px;
-        }
-        .stat-title {
-          font-size: 14px;
-          color: var(--text-muted);
-          font-weight: 500;
-        }
-        .stat-subtitle {
-          font-size: 12px;
-          color: var(--success);
-          margin-top: 4px;
-        }
-        .stat-icon.red ~ .stat-body .stat-subtitle {
-          color: var(--danger);
-        }
-
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: 2fr 1fr;
-          gap: 24px;
-        }
-        .table-section, .summary-section {
-          padding: 24px;
-        }
-        .section-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 24px;
-        }
-        .text-btn {
-          background: none;
-          border: none;
-          color: var(--primary);
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 14px;
-          font-weight: 600;
-        }
-        .custom-table {
-          display: flex;
-          flex-direction: column;
-        }
-        .table-header {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr;
-          padding: 12px 16px;
-          color: var(--text-muted);
-          font-size: 13px;
-          border-bottom: 1px solid var(--border-color);
-        }
-        .table-row {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr;
-          padding: 16px;
-          align-items: center;
-          border-bottom: 1px solid var(--border-color);
-          transition: background 0.3s;
-        }
-        .table-row:hover {
-          background: rgba(255, 255, 255, 0.02);
-        }
-        .user-cell {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .avatar-sm {
-          width: 32px;
-          height: 32px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-          font-size: 12px;
-        }
-        .status-badge {
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-size: 11px;
-          font-weight: 600;
-          text-align: center;
-          width: fit-content;
-        }
-        .status-badge.paid {
-          background: rgba(16, 185, 129, 0.1);
-          color: #34d399;
-        }
-        .chart-placeholder {
-          height: 200px;
-          margin-top: 32px;
-          display: flex;
-          align-items: flex-end;
-        }
-        .bar-grid {
-          display: flex;
-          justify-content: space-between;
-          width: 100%;
-          height: 100%;
-          align-items: flex-end;
-          gap: 12px;
-        }
-        .bar-wrapper {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-        }
-        .chart-bar {
-          width: 100%;
-          background: linear-gradient(to top, var(--primary), var(--secondary));
-          border-radius: 6px 6px 0 0;
-          opacity: 0.8;
-        }
-        .bar-wrapper span {
-          font-size: 10px;
-          color: var(--text-muted);
-        }
-        .loading-screen {
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-          color: var(--text-muted);
-        }
-      `}} />
+                <span className="text-sm font-medium">Rs. 8,500</span>
+                <span className="text-sm text-slate-400">Oct 12, 2026</span>
+                <span className="px-3 py-1 rounded-full text-[11px] font-semibold text-center w-fit bg-emerald-500/10 text-emerald-400">Approved</span>
+              </div>
+            ))}
+          </div>
         </motion.div>
-    );
+
+        <motion.div variants={item} className="glass-card p-6">
+          <h3 className="text-lg font-bold">Collection Performance</h3>
+          <div className="h-[200px] mt-8 flex items-end">
+            <div className="flex justify-between w-full h-full items-end gap-3">
+              {[60, 80, 45, 90, 70, 85].map((h, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: `${h}%` }}
+                    transition={{ duration: 1, delay: i * 0.1 }}
+                    className="w-full bg-gradient-to-t from-[var(--primary)] to-[var(--secondary)] rounded-t-lg opacity-80"
+                  />
+                  <span className="text-[10px] text-slate-400">Day {i + 1}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
 };
 
 export default Dashboard;

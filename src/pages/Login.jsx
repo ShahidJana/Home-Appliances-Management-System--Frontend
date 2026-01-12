@@ -1,209 +1,106 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LogIn, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { LogIn, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { useAuthController } from '../hooks/useAuthController';
 
 const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const { login, loading, error } = useAuthController();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, loading, error } = useAuthController();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await login(email, password);
-            // Redirect logic here if needed
-            window.location.href = '/dashboard';
-        } catch (err) {
-            console.error(err);
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      // window.location.href = '/dashboard'; // Let useAuthController handle redirect or state change if possible, or keep as is if that's the established pattern.
+      // Based on original code, it redirects manually.
+      window.location.href = '/dashboard';
+    } catch (err) {
+      console.error('Login failed:', err);
+      // Fallback: If it's a deactivation error, show alert
+      const msg = err.message || (err.response && err.response.data && err.response.data.message);
+      if (msg && msg.includes('deactivated')) {
+        alert(msg);
+      }
+    }
+  };
 
-    return (
-        <div className="login-container">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="glass-card login-card"
-            >
-                <div className="brand-header">
-                    <div className="logo-glow"></div>
-                    <h1>Karim Electronics</h1>
-                    <p>Enterprise Management Portal</p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="login-form">
-                    <div className="input-group">
-                        <Mail size={18} className="input-icon" />
-                        <input
-                            type="email"
-                            placeholder="System Email"
-                            className="input-field"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    <div className="input-group">
-                        <Lock size={18} className="input-icon" />
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Security Key"
-                            className="input-field"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                        <button
-                            type="button"
-                            className="toggle-password"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
-
-                    {error && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="error-message"
-                        >
-                            {error}
-                        </motion.div>
-                    )}
-
-                    <button type="submit" className="premium-btn login-btn" disabled={loading}>
-                        {loading ? <Loader2 className="animate-spin" /> : (
-                            <>
-                                <LogIn size={20} />
-                                <span>Initialize Session</span>
-                            </>
-                        )}
-                    </button>
-                </form>
-
-                <div className="login-footer">
-                    <p>© 2026 Advanced Asset Management System</p>
-                </div>
-            </motion.div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        .login-container {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          padding: 20px;
-        }
-        .login-card {
-          width: 100%;
-          max-width: 440px;
-          padding: 48px;
-          position: relative;
-          overflow: hidden;
-        }
-        .brand-header {
-          text-align: center;
-          margin-bottom: 40px;
-          position: relative;
-        }
-        .logo-glow {
-          position: absolute;
-          top: -20px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 80px;
-          height: 80px;
-          background: var(--primary);
-          filter: blur(40px);
-          opacity: 0.3;
-          z-index: -1;
-        }
-        h1 {
-          font-family: var(--font-main);
-          font-size: 28px;
-          font-weight: 700;
-          margin-bottom: 8px;
-          background: linear-gradient(to right, #fff, #94a3b8);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-        p {
-          color: var(--text-muted);
-          font-size: 14px;
-        }
-        .login-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-        .input-group {
-          position: relative;
-        }
-        .input-icon {
-          position: absolute;
-          left: 16px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--text-muted);
-        }
-        .input-field {
-          padding-left: 48px;
-          transition: all 0.3s ease;
-        }
-        .toggle-password {
-          position: absolute;
-          right: 16px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .login-btn {
-          margin-top: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          width: 100%;
-          height: 48px;
-        }
-        .error-message {
-          color: var(--danger);
-          font-size: 13px;
-          background: rgba(239, 68, 68, 0.1);
-          padding: 10px;
-          border-radius: 8px;
-          text-align: center;
-        }
-        .login-footer {
-          margin-top: 40px;
-          text-align: center;
-          border-top: 1px solid var(--border-color);
-          padding-top: 24px;
-        }
-        .login-footer p {
-          font-size: 12px;
-        }
-        .animate-spin {
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}} />
+  return (
+    <div className="flex min-h-screen items-center justify-center p-5">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="glass-card w-full max-w-[440px] p-12 relative overflow-hidden"
+      >
+        <div className="text-center mb-10 relative">
+          <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-20 h-20 bg-[var(--primary)] blur-[40px] opacity-30 -z-10"></div>
+          <h1 className="font-sans text-[28px] font-bold mb-2 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+            Karim Electronics
+          </h1>
+          <p className="text-slate-400 text-sm">Enterprise Management Portal</p>
         </div>
-    );
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div className="relative">
+            <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="email"
+              placeholder="System Email"
+              className="input-field pl-12 transition-all duration-300 w-full"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Security Key"
+              className="input-field pl-12 transition-all duration-300 w-full"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 flex items-center justify-center hover:text-white transition-colors border-none bg-transparent"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-red-500 text-[13px] bg-red-500/10 p-2.5 rounded-lg text-center flex items-center justify-center gap-2.5"
+            >
+              <AlertCircle size={16} />
+              <span>{typeof error === 'string' ? error : error.message || 'Login failed'}</span>
+            </motion.div>
+          )}
+
+          <button type="submit" className="premium-btn mt-2.5 flex items-center justify-center gap-3 w-full h-12" disabled={loading}>
+            {loading ? <Loader2 className="animate-spin" /> : (
+              <>
+                <LogIn size={20} />
+                <span>Initialize Session</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="mt-10 text-center border-t border-white/10 pt-6">
+          <p className="text-xs text-slate-500">© 2026 Advanced Asset Management System</p>
+        </div>
+      </motion.div>
+    </div>
+  );
 };
 
 export default Login;

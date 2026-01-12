@@ -25,12 +25,12 @@ const Plans = () => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="plans-page"
+            className="flex flex-col gap-8"
         >
-            <div className="page-header">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
                 <div>
-                    <h1>Sales & Installment Plans</h1>
-                    <p>Monitor active contracts and recovery schedules</p>
+                    <h1 className="text-2xl md:text-3xl font-bold mb-2">Sales & Installment Plans</h1>
+                    <p className="text-slate-400">Monitor active contracts and recovery schedules</p>
                 </div>
                 <button className="premium-btn with-icon">
                     <Plus size={18} />
@@ -38,12 +38,16 @@ const Plans = () => {
                 </button>
             </div>
 
-            <div className="glass-card table-controls">
-                <div className="search-box">
-                    <Search size={18} />
-                    <input type="text" placeholder="Search by Plan ID, Customer or Product..." />
+            <div className="glass-card flex flex-wrap items-center justify-between px-6 py-4 gap-4">
+                <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 flex-1 max-w-md transition-colors focus-within:bg-white/10 focus-within:border-[var(--primary)]">
+                    <Search size={18} className="text-slate-400" />
+                    <input
+                        type="text"
+                        placeholder="Search by Plan ID, Customer or Product..."
+                        className="bg-transparent border-none outline-none text-white w-full placeholder-slate-400 focus:ring-0 p-0"
+                    />
                 </div>
-                <div className="filter-actions">
+                <div className="flex items-center gap-2 flex-wrap">
                     {['All', 'Active', 'Overdue', 'Completed'].map(f => (
                         <button
                             key={f}
@@ -56,145 +60,57 @@ const Plans = () => {
                 </div>
             </div>
 
-            <div className="plans-list">
+            <div className="flex flex-col gap-4 p-4">
                 {plans.map((plan, i) => (
                     <motion.div
                         key={plan._id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.05 }}
-                        className="glass-card plan-item"
+                        className="glass-card grid grid-cols-1 md:grid-cols-[2fr_2fr_1.5fr_40px] p-8 items-center gap-6 transition-transform hover:translate-x-1"
                     >
-                        <div className="plan-main">
-                            <div className="plan-id">#{plan._id.slice(-6).toUpperCase()}</div>
-                            <div className="plan-details">
-                                <div className="detail-group">
-                                    <User size={14} className="text-muted" />
+                        <div className="w-full">
+                            <div className="font-mono font-bold text-[var(--primary)] text-sm mb-2 block">
+                                #{plan._id.slice(-6).toUpperCase()}
+                            </div>
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2 text-sm text-slate-300">
+                                    <User size={14} className="text-slate-500" />
                                     <span>{plan.customer?.fullName || 'Walk-in Customer'}</span>
                                 </div>
-                                <div className="detail-group">
-                                    <Package size={14} className="text-muted" />
+                                <div className="flex items-center gap-2 text-sm text-slate-300">
+                                    <Package size={14} className="text-slate-500" />
                                     <span>{plan.productName}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="plan-finance">
-                            <div className="finance-item">
-                                <span className="label">Total Amount</span>
-                                <span className="value">Rs. {plan.totalAmount?.toLocaleString()}</span>
+                        <div className="flex flex-col sm:flex-row gap-6 w-full">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[11px] text-slate-400 uppercase tracking-wider">Total Amount</span>
+                                <span className="font-bold text-base">Rs. {plan.totalAmount?.toLocaleString()}</span>
                             </div>
-                            <div className="finance-item">
-                                <span className="label">Remaining</span>
-                                <span className="value text-secondary">Rs. {plan.remainingAmount?.toLocaleString()}</span>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[11px] text-slate-400 uppercase tracking-wider">Remaining</span>
+                                <span className="font-bold text-base text-[var(--secondary)]">Rs. {plan.remainingAmount?.toLocaleString()}</span>
                             </div>
                         </div>
 
-                        <div className="plan-status-section">
-                            <div className={`status-badge ${plan.status.toLowerCase()}`}>
+                        <div className="w-full">
+                            <div className={`status-badge ${plan.status.toLowerCase()} mb-3`}>
                                 {plan.status}
                             </div>
-                            <div className="progress-mini">
-                                <div className="progress-bar-fill" style={{ width: '65%' }}></div>
+                            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]" style={{ width: '65%' }}></div>
                             </div>
                         </div>
 
-                        <button className="icon-btn-rounded">
+                        <button className="icon-btn-rounded hidden md:flex">
                             <ArrowRight size={18} />
                         </button>
                     </motion.div>
                 ))}
             </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        .plans-page {
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
-        }
-        .table-controls {
-          display: flex;
-          justify-content: space-between;
-          padding: 12px 24px;
-          align-items: center;
-        }
-        .filter-chip {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid var(--border-color);
-          color: var(--text-muted);
-          padding: 6px 16px;
-          border-radius: 20px;
-          font-size: 13px;
-          font-weight: 600;
-          margin-left: 8px;
-        }
-        .filter-chip.active {
-          background: var(--primary);
-          color: white;
-          border-color: var(--primary);
-        }
-
-        .plans-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .plan-item {
-          display: grid;
-          grid-template-columns: 2fr 2fr 1.5fr 40px;
-          padding: 24px;
-          align-items: center;
-          gap: 24px;
-          transition: transform 0.3s;
-        }
-        .plan-item:hover { transform: translateX(5px); }
-        
-        .plan-id { font-family: monospace; font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 8px; }
-        .detail-group { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 4px; }
-        
-        .finance-item { display: flex; flex-direction: column; gap: 4px; }
-        .finance-item .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-        .finance-item .value { font-weight: 700; font-size: 16px; }
-
-        .status-badge {
-          width: fit-content;
-          padding: 4px 12px;
-          border-radius: 6px;
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          margin-bottom: 12px;
-        }
-        .status-badge.active { background: rgba(16, 185, 129, 0.1); color: #34d399; }
-        .status-badge.overdue { background: rgba(239, 68, 68, 0.1); color: #f87171; }
-        
-        .progress-mini {
-          width: 100%;
-          height: 4px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 2px;
-          overflow: hidden;
-        }
-        .progress-bar-fill {
-          height: 100%;
-          background: linear-gradient(to right, var(--primary), var(--secondary));
-        }
-
-        .icon-btn-rounded {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid var(--border-color);
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s;
-        }
-        .icon-btn-rounded:hover { background: var(--primary); }
-      `}} />
         </motion.div>
     );
 };

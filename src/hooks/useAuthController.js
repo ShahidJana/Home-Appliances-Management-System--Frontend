@@ -14,7 +14,8 @@ export const useAuthController = () => {
             setUser(data.user);
             return data;
         } catch (err) {
-            setError(err.message || 'Login failed');
+            const msg = (typeof err === 'string') ? err : (err.message || 'Login failed');
+            setError(msg);
             throw err;
         } finally {
             setLoading(false);
