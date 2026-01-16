@@ -28,7 +28,7 @@ import {
 import { useCustomerController } from '../hooks/useCustomerController';
 
 const CustomerList = () => {
-  const { customers, loading, fetchCustomers, createCustomer, updateCustomer, deleteCustomer, toggleCustomerStatus } = useCustomerController();
+  const { customers, loading, fetchCustomers, createCustomer, updateCustomer, deleteCustomer } = useCustomerController();
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -99,51 +99,8 @@ const CustomerList = () => {
   }, [fetchCustomers]);
 
   const handleInputChange = (e) => {
-    let { name, value } = e.target;
-
-    // Auto-hyphen for CNIC: XXXXX-XXXXXXX-X
-    if (name.toLowerCase().includes('cnic')) {
-      value = value.replace(/\D/g, ''); // Remove non-digits
-      if (value.length > 13) value = value.slice(0, 13); // Limit to 13 digits
-
-      const parts = [];
-      if (value.length > 0) parts.push(value.slice(0, 5));
-      if (value.length > 5) parts.push(value.slice(5, 12));
-      if (value.length > 12) parts.push(value.slice(12, 13));
-      value = parts.join('-');
-    }
-
-    // Auto-hyphen for Phone: XXXX-XXXXXXX
-    if (name.toLowerCase().includes('phone') || name.toLowerCase().includes('contact')) {
-      value = value.replace(/\D/g, ''); // Remove non-digits
-      if (value.length > 11) value = value.slice(0, 11); // Limit to 11 digits
-
-      const parts = [];
-      if (value.length > 0) parts.push(value.slice(0, 4));
-      if (value.length > 4) parts.push(value.slice(4, 11));
-      value = parts.join('-');
-    }
-
+    const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const formatCNIC = (val) => {
-    if (!val) return 'N/A';
-    const clean = val.replace(/\D/g, '');
-    const parts = [];
-    if (clean.length > 0) parts.push(clean.slice(0, 5));
-    if (clean.length > 5) parts.push(clean.slice(5, 12));
-    if (clean.length > 12) parts.push(clean.slice(12, 13));
-    return parts.join('-');
-  };
-
-  const formatPhone = (val) => {
-    if (!val) return 'N/A';
-    const clean = val.replace(/\D/g, '');
-    const parts = [];
-    if (clean.length > 0) parts.push(clean.slice(0, 4));
-    if (clean.length > 4) parts.push(clean.slice(4, 11));
-    return parts.join('-');
   };
 
   const handleImageChange = (e, field) => {
@@ -182,38 +139,8 @@ const CustomerList = () => {
   };
 
   const handleEdit = (customer) => {
-    const formattedCustomer = { ...customer };
-
-    // Helper to format values
-    const formatValue = (key, val) => {
-      if (!val) return val;
-      if (key.toLowerCase().includes('cnic')) {
-        const d = val.replace(/\D/g, '');
-        const p = [];
-        if (d.length > 0) p.push(d.slice(0, 5));
-        if (d.length > 5) p.push(d.slice(5, 12));
-        if (d.length > 12) p.push(d.slice(12, 13));
-        return p.join('-');
-      }
-      if (key.toLowerCase().includes('phone') || key.toLowerCase().includes('contact')) {
-        const d = val.replace(/\D/g, '');
-        const p = [];
-        if (d.length > 0) p.push(d.slice(0, 4));
-        if (d.length > 4) p.push(d.slice(4, 11));
-        return p.join('-');
-      }
-      return val;
-    };
-
-    // Format all relevant fields
-    Object.keys(formattedCustomer).forEach(key => {
-      if (typeof formattedCustomer[key] === 'string') {
-        formattedCustomer[key] = formatValue(key, formattedCustomer[key]);
-      }
-    });
-
     setSelectedCustomer(customer);
-    setFormData(formattedCustomer);
+    setFormData(customer);
     setIsEditing(true);
     setIsModalOpen(true);
   };
@@ -293,15 +220,18 @@ const CustomerList = () => {
       animate={{ opacity: 1 }}
       className="flex flex-col gap-8"
     >
-      <div className="flex flex-col md:flex-row justify-end items-center gap-4 mb-8">
-
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Client Directory</h1>
+          <p className="text-slate-400">Manage and monitor customer records</p>
+        </div>
         <button className="premium-btn with-icon" onClick={openModal}>
           <Plus size={18} />
           <span>New Customer</span>
         </button>
       </div>
 
-      <div className="glass-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 relative z-40">
+      <div className="glass-card p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3 max-w-md w-full focus-within:bg-white/10 focus-within:border-[var(--primary)] transition-colors">
           <Search size={20} className="text-slate-400" />
           <input
@@ -317,7 +247,7 @@ const CustomerList = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-2 relative z-50">
+        <div className="flex items-center gap-2 relative z-20">
           <div className="relative">
             <button
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all ${showFilters ? 'bg-[var(--primary)]/20 border-[var(--primary)] text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
@@ -334,7 +264,7 @@ const CustomerList = () => {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-48 bg-[#1e293b] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[100] py-1"
+                  className="absolute right-0 top-full mt-2 w-48 bg-[#1e293b] border border-white/10 rounded-xl shadow-xl overflow-hidden z-50 py-1"
                 >
                   {[
                     { id: 'all', label: 'All Fields' },
@@ -368,80 +298,55 @@ const CustomerList = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence>
           {filteredCustomers.map((c, i) => (
             <motion.div
               key={c._id || i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.05 }}
-              className="glass-card group p-5 flex flex-col gap-6 transition-all duration-300 hover:shadow-2xl hover:shadow-[var(--primary)]/10 border-white/5 hover:border-white/10"
+              className="glass-card p-5 flex flex-col gap-5"
             >
-              {/* Section 1: Customer Profile */}
-              <div className="flex flex-col gap-1 min-w-0 flex-1">
-                <div className="flex items-center gap-3">
-                  <h3 className="font-bold text-lg text-indigo-400 truncate group-hover:text-indigo-300 transition-colors line-clamp-1">{c.fullName}</h3>
-                  <span className={`text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider ${c.status === 'Active'
+              <div className="flex items-center gap-3">
+                <div className="avatar-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center text-xl font-bold text-white w-12 h-12 rounded-xl shrink-0">
+                  {c.fullName ? c.fullName[0] : 'C'}
+                </div>
+                <div className="flex flex-col gap-1 min-w-0">
+                  <h3 className="font-bold text-white truncate text-base">{c.fullName}</h3>
+                  <span className={`text-[10px] px-2 py-0.5 rounded w-fit font-bold uppercase tracking-wider ${c.status === 'Active'
                     ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                     : 'bg-red-500/10 text-red-400 border border-red-500/20'
                     }`}>
                     {c.status}
                   </span>
                 </div>
-                {c.cnic && <span className="text-[14px] text-slate-500 font-mono tracking-tight mb-4" title='CNIC'>{formatCNIC(c.cnic)}</span>}
+              </div>
 
-                {/* Integrated Contact & Address */}
-                <div className="flex flex-col gap-1.5 pt-3 border-t border-white/5">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 text-slate-500 font-bold uppercase tracking-widest text-[9px] w-[110px] shrink-0">
-                      <Phone size={10} className="text-indigo-400" />
-                      <span>Phone:</span>
-                    </div>
-                    <span className="text-[12px] font-bold text-slate-200">{formatPhone(c.primaryPhone)}</span>
-                  </div>
-
-                  <div className="flex items-start gap-2">
-                    <div className="flex items-center gap-1.5 text-slate-500 font-bold uppercase tracking-widest text-[9px] w-[110px] shrink-0 mt-0.5">
-                      <MapPin size={10} className="text-[var(--primary)]" />
-                      <span>Address:</span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 font-medium line-clamp-2 mr-2 flex-1" title={c.address}>
-                      {c.address || 'No address provided.'}
-                    </p>
-                  </div>
+              <div className="flex flex-col gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
+                <div className="flex items-center gap-2 text-xs text-slate-300">
+                  <CreditCard size={14} className="text-[var(--primary)] shrink-0" />
+                  <span className="truncate" title={c.cnic}>{c.cnic}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-300">
+                  <Phone size={14} className="text-[var(--primary)] shrink-0" />
+                  <span className="truncate">{c.primaryPhone}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-300">
+                  <MapPin size={14} className="text-[var(--primary)] shrink-0" />
+                  <span className="truncate line-clamp-1" title={c.address}>{c.address || 'No Address'}</span>
                 </div>
               </div>
 
-              {/* Section 4: Actions */}
-              <div className="flex items-center gap-3 mt-auto pt-5 border-t border-white/5 w-full justify-end">
-                <button
-                  className={`w-10 h-10 rounded-full border border-white/10 flex items-center justify-center transition-all ${c.status === 'Active' ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20' : 'text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/20'}`}
-                  onClick={() => toggleCustomerStatus(c)}
-                  title={c.status === 'Active' ? 'Block Customer' : 'Unblock Customer'}
-                >
-                  {c.status === 'Active' ? <Ban size={18} /> : <CheckCircle size={18} />}
+              <div className="flex gap-2 mt-auto pt-2 border-t border-white/5">
+                <button className="action-btn-mini view flex-1" onClick={() => handleView(c)} title="View Details">
+                  <Eye size={16} />
                 </button>
-                <button
-                  className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/20 transition-all"
-                  onClick={() => handleView(c)}
-                  title="View Details"
-                >
-                  <Eye size={18} />
+                <button className="action-btn-mini edit flex-1" onClick={() => handleEdit(c)} title="Edit">
+                  <Edit size={16} />
                 </button>
-                <button
-                  className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-500/20 transition-all"
-                  onClick={() => handleEdit(c)}
-                  title="Edit"
-                >
-                  <Edit size={18} />
-                </button>
-                <button
-                  className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-all"
-                  onClick={() => handleDelete(c._id || c.id)}
-                  title="Delete"
-                >
-                  <Trash2 size={18} />
+                <button className="action-btn-mini delete flex-1" onClick={() => handleDelete(c._id || c.id)} title="Delete">
+                  <Trash2 size={16} />
                 </button>
               </div>
             </motion.div>
@@ -559,7 +464,19 @@ const CustomerList = () => {
                         <option value="Married">Married</option>
                       </select>
                     </div>
-
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-slate-400 font-medium flex items-center gap-1.5"><CheckCircle size={12} /> Status *</label>
+                      <select
+                        name="status"
+                        className="input-field"
+                        value={formData.status}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option value="Active">Active</option>
+                        <option value="Block">Block</option>
+                      </select>
+                    </div>
                     <div className="flex flex-col gap-2 md:col-span-2 lg:col-span-3">
                       <label className="text-xs text-slate-400 font-medium flex items-center gap-1.5"><MapPin size={12} /> Full Address (Zilla, Route, City, Sector, Muhalla) *</label>
                       <textarea
@@ -883,15 +800,15 @@ const CustomerList = () => {
                       </div>
                       <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors">
                         <strong className="text-slate-400 font-medium">CNIC:</strong>
-                        <span className="text-white font-mono">{formatCNIC(selectedCustomer.cnic)}</span>
+                        <span className="text-white font-mono">{selectedCustomer.cnic}</span>
                       </div>
                       <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors">
                         <strong className="text-slate-400 font-medium">Primary Phone:</strong>
-                        <span className="text-white font-mono">{formatPhone(selectedCustomer.primaryPhone)}</span>
+                        <span className="text-white font-mono">{selectedCustomer.primaryPhone}</span>
                       </div>
                       <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors">
                         <strong className="text-slate-400 font-medium">Secondary Phone:</strong>
-                        <span className="text-white font-mono">{formatPhone(selectedCustomer.secondaryPhone)}</span>
+                        <span className="text-white font-mono">{selectedCustomer.secondaryPhone || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors">
                         <strong className="text-slate-400 font-medium">DOB:</strong>
@@ -957,8 +874,8 @@ const CustomerList = () => {
                     <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 border-b border-white/10 pb-2"><Users size={14} /> Guarantor 1</h3>
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">Name:</strong> <span className="text-white">{selectedCustomer.guarantor1Name || 'N/A'}</span></div>
-                      <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">Phone:</strong> <span className="text-white font-mono">{formatPhone(selectedCustomer.guarantor1Phone)}</span></div>
-                      <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">CNIC:</strong> <span className="text-white font-mono">{formatCNIC(selectedCustomer.guarantor1Cnic)}</span></div>
+                      <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">Phone:</strong> <span className="text-white font-mono">{selectedCustomer.guarantor1Phone || 'N/A'}</span></div>
+                      <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">CNIC:</strong> <span className="text-white font-mono">{selectedCustomer.guarantor1Cnic || 'N/A'}</span></div>
                       <div className="flex flex-col gap-1 text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">Address:</strong> <span className="text-white text-xs leading-relaxed">{selectedCustomer.guarantor1Address || 'N/A'}</span></div>
                     </div>
                   </div>
@@ -966,8 +883,8 @@ const CustomerList = () => {
                     <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 border-b border-white/10 pb-2"><Users size={14} /> Guarantor 2</h3>
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">Name:</strong> <span className="text-white">{selectedCustomer.guarantor2Name || 'N/A'}</span></div>
-                      <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">Phone:</strong> <span className="text-white font-mono">{formatPhone(selectedCustomer.guarantor2Phone)}</span></div>
-                      <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">CNIC:</strong> <span className="text-white font-mono">{formatCNIC(selectedCustomer.guarantor2Cnic)}</span></div>
+                      <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">Phone:</strong> <span className="text-white font-mono">{selectedCustomer.guarantor2Phone || 'N/A'}</span></div>
+                      <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">CNIC:</strong> <span className="text-white font-mono">{selectedCustomer.guarantor2Cnic || 'N/A'}</span></div>
                       <div className="flex flex-col gap-1 text-sm border-b border-white/5 pb-2 last:border-0 group hover:bg-white/5 px-2 rounded -mx-2 transition-colors"><strong className="text-slate-400 font-medium">Address:</strong> <span className="text-white text-xs leading-relaxed">{selectedCustomer.guarantor2Address || 'N/A'}</span></div>
                     </div>
                   </div>
@@ -980,19 +897,15 @@ const CustomerList = () => {
                       { title: 'CNIC Front', src: selectedCustomer.cnicFront },
                       { title: 'CNIC Back', src: selectedCustomer.cnicBack },
                       { title: 'Home Photo', src: selectedCustomer.homeImage },
-                      { title: 'Shop Photo', src: selectedCustomer.shopImage },
-                      { title: 'G1 CNIC Front', src: selectedCustomer.guarantor1CnicFront },
-                      { title: 'G1 CNIC Back', src: selectedCustomer.guarantor1CnicBack },
-                      { title: 'G2 CNIC Front', src: selectedCustomer.guarantor2CnicFront },
-                      { title: 'G2 CNIC Back', src: selectedCustomer.guarantor2CnicBack }
+                      { title: 'Shop Photo', src: selectedCustomer.shopImage }
                     ].map((img, idx) => (
                       <div key={idx} className="aspect-video bg-white/5 rounded-xl overflow-hidden border border-white/10 relative group cursor-pointer" onClick={() => img.src && setPreviewImage(img.src)}>
                         {img.src ? (
                           <img src={img.src} alt={img.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         ) : (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 gap-1.5 grayscale opacity-40">
-                            <ImageIcon size={20} />
-                            <span className="text-[10px] uppercase font-bold tracking-widest">{img.title}</span>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600 gap-1.5">
+                            <ImageOff size={20} />
+                            <span className="text-[10px]">{img.title}</span>
                           </div>
                         )}
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -1005,7 +918,8 @@ const CustomerList = () => {
               </div>
 
               <div className="flex justify-end gap-3 p-5 border-t border-white/10 shrink-0">
-                <button className="px-6 py-2.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm hover:bg-[var(--primary-dark)] transition-colors w-full sm:w-auto" onClick={closeViewModal}>Close Profile</button>
+                <button className="px-6 py-2.5 rounded-xl border border-white/10 text-slate-300 font-semibold text-sm hover:bg-white/5 transition-colors" onClick={() => handleEdit(selectedCustomer)}>Edit Profile</button>
+                <button className="px-6 py-2.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm hover:bg-[var(--primary-dark)] transition-colors" onClick={closeViewModal}>Close View</button>
               </div>
             </motion.div>
           </div>

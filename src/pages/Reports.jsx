@@ -40,6 +40,8 @@ const Reports = () => {
         >
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
+                    <h1 className="text-2xl md:text-3xl font-bold mb-2">Intelligence Hub</h1>
+                    <p className="text-slate-400">Financial analytics and operational performance auditing</p>
                 </div>
                 <div className="flex gap-4">
                     <button className="px-5 py-2.5 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-colors flex items-center gap-2">

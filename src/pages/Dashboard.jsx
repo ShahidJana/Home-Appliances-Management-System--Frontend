@@ -18,9 +18,9 @@ const StatCard = ({ title, value, subValue, icon: Icon, color }) => (
   >
     <div className="flex justify-between items-start mb-5">
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color === 'indigo' ? 'bg-indigo-500/15 text-indigo-400' :
-        color === 'pink' ? 'bg-pink-500/15 text-pink-400' :
-          color === 'orange' ? 'bg-amber-500/15 text-amber-400' :
-            'bg-red-500/15 text-red-400'
+          color === 'pink' ? 'bg-pink-500/15 text-pink-400' :
+            color === 'orange' ? 'bg-amber-500/15 text-amber-400' :
+              'bg-red-500/15 text-red-400'
         }`}>
         <Icon size={24} />
       </div>
@@ -61,6 +61,8 @@ const Dashboard = () => {
     >
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Strategic Overview</h1>
+          <p className="text-slate-400">Real-time analytics for Karim Electronics Enterprise</p>
         </div>
         <button className="premium-btn">Generate Report</button>
       </div>

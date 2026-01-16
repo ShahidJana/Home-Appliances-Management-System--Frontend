@@ -23,50 +23,12 @@ export const useCustomerController = () => {
         setLoading(true);
         try {
             const data = await CustomerModel.create(formData);
-            fetchCustomers();
             return data;
         } catch (err) {
             setError(err.message);
             throw err;
         } finally {
             setLoading(false);
-        }
-    };
-
-    const updateCustomer = async (id, formData) => {
-        setLoading(true);
-        try {
-            const data = await CustomerModel.update(id, formData);
-            fetchCustomers();
-            return data;
-        } catch (err) {
-            setError(err.message);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const deleteCustomer = async (id) => {
-        setLoading(true);
-        try {
-            await CustomerModel.delete(id);
-            fetchCustomers();
-        } catch (err) {
-            setError(err.message);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const toggleCustomerStatus = async (customer) => {
-        const newStatus = customer.status === 'Active' ? 'Block' : 'Active';
-        try {
-            await CustomerModel.update(customer._id, { status: newStatus });
-            fetchCustomers();
-        } catch (err) {
-            setError(err.message);
         }
     };
 
@@ -86,9 +48,6 @@ export const useCustomerController = () => {
         error,
         fetchCustomers,
         createCustomer,
-        updateCustomer,
-        deleteCustomer,
-        toggleCustomerStatus,
         getCustomerHealth
     };
 };
