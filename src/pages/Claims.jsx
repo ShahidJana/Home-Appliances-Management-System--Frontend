@@ -283,11 +283,7 @@ const Claims = () => {
             className="flex flex-col gap-8"
         >
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                <div>
-                    <h1 className="text-2xl md:text-3xl font-bold mb-2">Claims Management</h1>
-                    <p className="text-slate-400">Track and manage customer warranty & repair claims</p>
-                </div>
+            <div className="flex flex-col md:flex-row justify-end items-center gap-4 mb-8">
                 <button className="premium-btn with-icon" onClick={() => { setIsEditing(false); setIsAddModalOpen(true); }}>
                     <Plus size={18} />
                     <span>New Claim</span>
@@ -478,7 +474,7 @@ const Claims = () => {
             {/* Add Claim Modal */}
             <AnimatePresence>
                 {isAddModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -495,41 +491,41 @@ const Claims = () => {
                                 </button>
                             </div>
 
-                            <form onSubmit={handleSubmitClaim} className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar">
-                                <div>
-                                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
-                                        <User size={14} /> Customer Details
+                            <form onSubmit={handleSubmitClaim} className="flex-1 overflow-y-auto p-6 flex flex-col gap-8 custom-scrollbar">
+                                <section className="space-y-6">
+                                    <h3 className="text-sm font-black text-white flex items-center gap-2 border-b border-white/5 pb-3 uppercase tracking-widest">
+                                        <User size={16} className="text-indigo-400" /> Customer Details
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs text-slate-400 font-medium">Customer Name *</label>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Customer Name *</label>
                                             <input
                                                 type="text"
                                                 name="customerName"
-                                                className="input-field"
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-medium text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all"
                                                 placeholder="Enter name"
                                                 value={newClaim.customerName}
                                                 onChange={handleAddInputChange}
                                                 required
                                             />
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs text-slate-400 font-medium">Customer CNIC</label>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Customer CNIC</label>
                                             <input
                                                 type="text"
                                                 name="customerCNIC"
-                                                className="input-field"
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-medium text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all"
                                                 placeholder="XXXXX-XXXXXXX-X"
                                                 value={newClaim.customerCNIC}
                                                 onChange={handleAddInputChange}
                                             />
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs text-slate-400 font-medium">Phone Number *</label>
+                                        <div className="flex flex-col gap-1.5 md:col-span-2">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Phone Number *</label>
                                             <input
                                                 type="tel"
                                                 name="customerPhone"
-                                                className="input-field"
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-medium text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all"
                                                 placeholder="03XX-XXXXXXX"
                                                 value={newClaim.customerPhone}
                                                 onChange={handleAddInputChange}
@@ -537,99 +533,102 @@ const Claims = () => {
                                             />
                                         </div>
                                     </div>
-                                </div>
+                                </section>
 
-                                <div>
-                                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
-                                        <Package size={14} /> Product Information
+                                <section className="space-y-6">
+                                    <h3 className="text-sm font-black text-white flex items-center gap-2 border-b border-white/5 pb-3 uppercase tracking-widest">
+                                        <Package size={16} className="text-pink-400" /> Product Information
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs text-slate-400 font-medium">Product Name *</label>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Product Name *</label>
                                             <input
                                                 type="text"
                                                 name="productName"
-                                                className="input-field"
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-medium text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all"
                                                 placeholder="e.g. Samsung AC"
                                                 value={newClaim.productName}
                                                 onChange={handleAddInputChange}
                                                 required
                                             />
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs text-slate-400 font-medium">Claim Type *</label>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Claim Type *</label>
                                             <select
                                                 name="claimType"
-                                                className="input-field"
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-medium text-white focus:border-indigo-500/50 outline-none transition-all appearance-none cursor-pointer"
                                                 value={newClaim.claimType}
                                                 onChange={handleAddInputChange}
                                             >
-                                                <option value="Warranty">Warranty</option>
-                                                <option value="Repair">Repair</option>
-                                                <option value="Replacement">Replacement</option>
+                                                <option value="Warranty" className="bg-[#1e293b]">Warranty</option>
+                                                <option value="Repair" className="bg-[#1e293b]">Repair</option>
+                                                <option value="Replacement" className="bg-[#1e293b]">Replacement</option>
                                             </select>
                                         </div>
-                                        {isEditing && (
-                                            <div className="flex flex-col gap-2">
-                                                <label className="text-xs text-slate-400 font-medium">Status</label>
-                                                <select
-                                                    name="status"
-                                                    className="input-field"
-                                                    value={newClaim.status}
-                                                    onChange={handleAddInputChange}
-                                                >
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="In Progress">In Progress</option>
-                                                    <option value="Resolved">Resolved</option>
-                                                    <option value="Rejected">Rejected</option>
-                                                </select>
-                                            </div>
-                                        )}
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs text-slate-400 font-medium">Estimated Amount</label>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Estimated Amount</label>
                                             <input
                                                 type="number"
                                                 name="claimAmount"
-                                                className="input-field"
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-medium text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all"
                                                 placeholder="0"
                                                 value={newClaim.claimAmount}
                                                 onChange={handleAddInputChange}
                                             />
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs text-slate-400 font-medium">Assigned To</label>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Assigned To</label>
                                             <input
                                                 type="text"
                                                 name="assignedTo"
-                                                className="input-field"
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-medium text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all"
                                                 placeholder="e.g. Tech Team A"
                                                 value={newClaim.assignedTo}
                                                 onChange={handleAddInputChange}
                                             />
                                         </div>
-                                        <div className="flex flex-col gap-2 md:col-span-2">
-                                            <label className="text-xs text-slate-400 font-medium">Issue Description *</label>
+                                        {isEditing && (
+                                            <div className="flex flex-col gap-1.5 md:col-span-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Status</label>
+                                                <select
+                                                    name="status"
+                                                    className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-medium text-white focus:border-indigo-500/50 outline-none transition-all appearance-none cursor-pointer"
+                                                    value={newClaim.status}
+                                                    onChange={handleAddInputChange}
+                                                >
+                                                    <option value="Pending" className="bg-[#1e293b]">Pending</option>
+                                                    <option value="In Progress" className="bg-[#1e293b]">In Progress</option>
+                                                    <option value="Resolved" className="bg-[#1e293b]">Resolved</option>
+                                                    <option value="Rejected" className="bg-[#1e293b]">Rejected</option>
+                                                </select>
+                                            </div>
+                                        )}
+                                        <div className="flex flex-col gap-1.5 md:col-span-2">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Issue Description *</label>
                                             <textarea
                                                 name="issueDescription"
-                                                className="input-field min-h-[80px]"
-                                                placeholder="Describe the issue..."
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-sm font-medium text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all min-h-[120px] resize-none"
+                                                placeholder="Describe the issue in detail..."
                                                 value={newClaim.issueDescription}
                                                 onChange={handleAddInputChange}
                                                 required
                                             />
                                         </div>
                                     </div>
-                                </div>
+                                </section>
 
-                                <div className="sticky bottom-0 pt-4 flex gap-3 border-t border-white/10 mt-auto bg-[#0f172a]/95 backdrop-blur z-10 -mx-6 px-6 -mb-6 pb-6">
+                                <div className="flex items-center gap-4 pt-4 shrink-0">
                                     <button
                                         type="button"
-                                        className="px-6 py-2.5 rounded-xl border border-white/10 text-slate-300 font-semibold text-sm hover:bg-white/5 transition-colors"
+                                        className="h-14 px-8 rounded-2xl border border-white/5 bg-white/5 text-white font-black text-sm uppercase tracking-wider hover:bg-white/10 transition-all active:scale-95"
                                         onClick={() => setIsAddModalOpen(false)}
                                     >
                                         Cancel
                                     </button>
-                                    <button type="submit" className="premium-btn flex-1">
+                                    <button
+                                        type="submit"
+                                        className="h-14 flex-1 rounded-2xl bg-gradient-to-r from-indigo-500 to-pink-500 text-white font-black text-sm uppercase tracking-wider shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all active:scale-[0.98]"
+                                    >
                                         {isEditing ? 'Update Claim' : 'Submit Claim'}
                                     </button>
                                 </div>
@@ -642,7 +641,7 @@ const Claims = () => {
             {/* View Modal */}
             <AnimatePresence>
                 {isViewModalOpen && selectedClaim && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}

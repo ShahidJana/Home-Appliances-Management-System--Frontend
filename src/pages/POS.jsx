@@ -277,15 +277,23 @@ const POS = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-6 flex-1 overflow-hidden">
+            <div className="grid grid-cols-12 gap-4 flex-1 overflow-hidden">
                 <div className="col-span-12 lg:col-span-9 flex flex-col gap-4 h-full overflow-hidden">
                     <div className="glass-card shadow-2xl overflow-hidden flex flex-col border-white/10 flex-1 min-h-0">
-                        <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
-                            <div className="flex items-center gap-3">
+                        <div className="p-2 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
+                            <div className="flex items-center gap-2">
                                 <div className="w-1 h-5 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
-                                <h2 className="text-xs font-black text-white uppercase tracking-[0.2em]">Current Bill Selection</h2>
+                                <h2 className="text-lg font-black text-white uppercase tracking-[0.2em]">Current Bill Selection</h2>
                             </div>
-                            <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Active Terminal: {currentUser?.fullName}</div>
+                            <div className="bg-[#0f172a]/80 border border-white/5 rounded-2xl px-6 py-3 flex items-center shadow-2xl">
+                                <p className="text-[12px] font-black uppercase text-white tracking-[0.2em] flex items-center gap-2">
+                                    Active Bill:
+                                    <span className="text-lg font-black text-white leading-none">
+                                        {history.length + 1}
+                                    </span>
+                                </p>
+                            </div>
+
                         </div>
 
                         <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -369,32 +377,35 @@ const POS = () => {
 
                     {/* Summary Footer Grid - Compact Version */}
                     <div className="glass-card shadow-2xl p-2 space-y-4 border-white/10 bg-white/[0.01]">
-                        {/* Summary Stats Cards - Tighter */}
-                        <div className="grid grid-cols-4 gap-2">
+                        {/* Summary Stats Cards - Tighter on Top */}
+                        <div className="grid grid-cols-5 gap-2">
                             {[
-                                { label: 'Active Bill', value: history.length + 1, icon: Receipt, color: 'text-indigo-400' },
                                 { label: 'Total Rows', value: cart.length, icon: Package, color: 'text-pink-400' },
                                 { label: 'T. Quantity', value: totalItems, icon: Plus, color: 'text-blue-400' },
                                 { label: 'Subtotal Val.', value: billAmount.toLocaleString(undefined, { minimumFractionDigits: 1 }), icon: CircleDollarSign, color: 'text-emerald-400' }
                             ].map((stat, i) => (
-                                <div key={i} className=" bg-black/20 border border-white/5 rounded-xl p-3 transition-all hover:border-white/20 relative group ">
+                                <div key={i} className=" bg-black/20 border border-white/5 rounded-xl p-2 transition-all hover:border-white/20 relative group ">
                                     <stat.icon size={14} className={`absolute top-3 right-3 ${stat.color} opacity-40 group-hover:opacity-100 transition-opacity`} />
                                     <p className="text-[9px] font-black text-slate-500 uppercase mb-1 tracking-widest">{stat.label}</p>
-                                    <p className="text-base font-black text-white">{stat.value}</p>
+                                    <p className="text-base font-black text-white truncate">{stat.value}</p>
                                 </div>
                             ))}
+                            <div className="space-y-1 bg-black/20 border border-white/5 rounded-xl p-2 focus-within:border-pink-500/50 transition-all">
+                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Discount %</label>
+                                <input type="number" value={discountPercent} onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-none outline-none text-base font-black text-pink-500 p-0" />
+                            </div>
+                            <div className="space-y-1 bg-black/20 border border-white/5 rounded-xl p-2 focus-within:border-indigo-500/50 transition-all">
+                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Tax %</label>
+                                <input type="number" value={taxPercent} onChange={(e) => setTaxPercent(parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-none outline-none text-base font-black text-indigo-400 p-0" />
+                            </div>
                         </div>
 
-                        {/* Financial Inputs & Mode Toggle - Very Compact */}
-                        <div className="flex flex-wrap lg:flex-nowrap items-end gap-3">
-                            <div className="flex-1 grid grid-cols-4 gap-3">
-                                <div className="space-y-1.5">
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Discount %</label>
-                                    <input type="number" value={discountPercent} onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || 0)} className="w-full bg-black/40 border border-white/5 rounded-xl px-3 py-2.5 text-xs font-black text-pink-500 focus:border-pink-500/50 outline-none transition-all" />
-                                </div>
+                        {/* Financial Inputs & Mode Toggle - Bottom Row now */}
+                        <div className="flex flex-wrap lg:flex-nowrap items-end gap-3 pt-2 border-t border-white/5">
+                            <div className="flex-1 grid grid-cols-3 gap-3">
                                 <div className="space-y-1.5">
                                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Tax Amt.</label>
-                                    <div className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2.5 text-xs font-black text-indigo-400 font-mono">Rs. {taxAmount.toFixed(2)}</div>
+                                    <div className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-3 py-[10.5px] text-xs font-black text-indigo-400 font-mono">Rs {taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Net Payable</label>
@@ -412,15 +423,15 @@ const POS = () => {
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 h-[42px]">
-                                <button onClick={handleSave} disabled={submitting} className="px-6 bg-white hover:bg-slate-100 text-black font-black text-[10px] uppercase tracking-wider rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0">
-                                    <Save size={14} /> {submitting ? 'PROCESS' : 'COMPLETE SALE'}
+                            <div className="flex gap-2 h-[60px]">
+                                <button onClick={handleSave} disabled={submitting} className="px-8 bg-green-600 hover:bg-green-700 text-white font-black text-md uppercase tracking-wider rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0">
+                                    <Save size={18} /> {submitting ? 'PROCESSING...' : 'COMPLETE SALE'}
                                 </button>
-                                <button className="bg-white/5 hover:bg-white/10 text-white w-11 rounded-xl flex items-center justify-center border border-white/10 transition-all active:scale-90">
-                                    <Printer size={16} />
+                                <button className="bg-white/5 hover:bg-white/10 text-white w-12 rounded-xl flex items-center justify-center border border-white/10 transition-all active:scale-90">
+                                    <Printer size={18} />
                                 </button>
-                                <button onClick={resetBoard} className="bg-red-500/10 hover:bg-red-500/20 text-red-500 w-11 rounded-xl flex items-center justify-center border border-red-500/20 transition-all active:scale-90">
-                                    <RefreshCcw size={16} />
+                                <button onClick={resetBoard} className="bg-red-500/10 hover:bg-red-500/20 text-red-500 w-12 rounded-xl flex items-center justify-center border border-red-500/20 transition-all active:scale-90">
+                                    <RefreshCcw size={18} />
                                 </button>
                             </div>
                         </div>
@@ -429,7 +440,7 @@ const POS = () => {
                         <AnimatePresence>
                             {paymentType === 'Installment' && (
                                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="pt-6 border-t border-white/5 overflow-hidden">
-                                    <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-2xl p-5 flex items-center gap-12">
+                                    <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-2xl p-2 flex items-center gap-12">
                                         <div className="space-y-2">
                                             <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest pl-1">Plan Duration</p>
                                             <select value={installmentPlan} onChange={(e) => setInstallmentPlan(e.target.value)} className="bg-[#1e293b] border border-white/10 rounded-xl px-4 py-2 text-xs font-black text-white outline-none">
@@ -486,33 +497,36 @@ const POS = () => {
                                     key={sale._id}
                                     className={`p-2 rounded-lg border transition-all cursor-pointer group ${i === 0 ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]'}`}
                                 >
-                                    <div className="flex items-start gap-4">
-                                        {/* Left: Icon Container */}
-
-
-                                        {/* Center: Primary Details */}
-                                        <div className="flex-1 flex flex-col min-w-0">
-                                            <div className="flex items-center gap-2 mb-0.5">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]' : 'bg-slate-600'}`}></div>
-                                                <span className="text-sm font-black text-white uppercase truncate">{sale.customer?.fullName || 'Retail'}</span>
+                                    <div className="flex flex-col gap-2">
+                                        {/* Top Section: Customer & Amount */}
+                                        <div className="flex justify-between items-start gap-3">
+                                            <div className="flex-1 flex flex-col min-w-0">
+                                                <div className="flex items-center gap-2 mb-0.5">
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]' : 'bg-slate-600'}`}></div>
+                                                    <span className="text-sm font-black text-white uppercase truncate">{sale.customer?.fullName || 'Retail'}</span>
+                                                </div>
+                                                <p className="text-[10px] text-slate-400 font-medium truncate">{sale.productName || 'Sale Entry'}</p>
                                             </div>
-                                            <p className="text-[10px] text-slate-400 font-medium truncate mb-2">{sale.productName || 'Sale Entry'}</p>
 
-                                            <div className="flex flex-col">
-                                                <span className="text-[8px] text-slate-500 font-black uppercase tracking-[0.1em] leading-none mb-1">Receipt ID</span>
-                                                <span className="text-[10px] text-slate-400 font-mono tracking-tighter">#{sale.planId || (history.length - i).toString().padStart(5, '0')}</span>
+                                            <div className="text-right flex flex-col items-end shrink-0">
+                                                <p className="text-sm font-black text-white tracking-tighter mb-1">Rs {sale.totalAmount?.toLocaleString() || sale.price?.toLocaleString()}/-</p>
+                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider ${sale.paymentType === 'Installment' ? 'bg-pink-500/10 text-pink-500 border border-pink-500/10' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/10'}`}>
+                                                    {sale.paymentType || 'Confirmed'}
+                                                </span>
                                             </div>
                                         </div>
 
-                                        {/* Right: Meta & Amount */}
-                                        <div className="text-right flex flex-col items-end">
-                                            <p className="text-sm font-black text-white tracking-tighter mb-1.5">Rs {sale.totalAmount?.toLocaleString() || sale.price?.toLocaleString()}/-</p>
-                                            <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider mb-2 ${sale.paymentType === 'Installment' ? 'bg-pink-500/10 text-pink-500 border border-pink-500/10' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/10'}`}>
-                                                {sale.paymentType || 'Confirmed'}
-                                            </span>
-                                            <div className="flex flex-col text-[8px] font-bold text-slate-500 uppercase tracking-tighter leading-tight">
-                                                <span>{new Date(sale.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                                                <span>{new Date(sale.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</span>
+                                        {/* Bottom Section: ID & Date/Time on the same line */}
+                                        <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[8px] text-slate-500 font-black uppercase tracking-[0.1em] leading-none">Receipt ID:</span>
+                                                <span className="text-[10px] text-slate-400 font-mono tracking-tighter leading-none">#{sale.planId || (history.length - i).toString().padStart(5, '0')}</span>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 text-right text-[8px] font-black text-slate-500 uppercase tracking-[0.1em] leading-none shrink-0">
+                                                <span>{new Date(sale.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', })}</span>
+                                                <span className="text-slate-600">•</span>
+                                                <span className="text-slate-600">{new Date(sale.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                                             </div>
                                         </div>
                                     </div>

@@ -40,9 +40,9 @@ const Sidebar = ({ isOpen, toggle }) => {
         { name: 'Employees', path: '/attendance?view=employee', icon: Users }
       ]
     },
-    { name: 'Reports', icon: LineChart, path: '/reports' },
+    { name: 'Warranty Claims', icon: FileText, path: '/claims' },
     { name: 'Financials', icon: DollarSign, path: '/transactions' },
-    { name: 'Claims', icon: FileText, path: '/claims' },
+    { name: 'Reports', icon: LineChart, path: '/reports' },
   ];
 
   const [expandedItems, setExpandedItems] = useState([]);
@@ -196,18 +196,46 @@ const Sidebar = ({ isOpen, toggle }) => {
 
 const Header = ({ toggleSidebar }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const location = useLocation();
 
   React.useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  const getPageInfo = () => {
+    const path = location.pathname;
+    const search = location.search;
+
+    if (path === '/dashboard') return { title: 'Dashboard', subtitle: 'Welcome back to your store overview' };
+    if (path === '/pos') return { title: 'Point of Sale', subtitle: 'Terminal #01 • Active Session' };
+    if (path === '/inventory') return { title: 'Inventory', subtitle: 'Manage your product stock & categories' };
+    if (path === '/vendors') return { title: 'Vendors', subtitle: 'Supplier directory and purchase history' };
+    if (path === '/customers') return { title: 'Customers', subtitle: 'Client management and credit scores' };
+    if (path === '/plans') return { title: 'Installment Plans', subtitle: 'Active financing and payment schedules' };
+    if (path.includes('/attendance')) {
+      if (search.includes('view=employee')) return { title: 'Employees', subtitle: 'Staff directory and records' };
+      return { title: 'Attendance', subtitle: 'Daily presence and time logs' };
+    }
+    if (path === '/claims') return { title: 'Warranty Claims', subtitle: 'Track and manage customer warranty & repair claims' };
+    if (path === '/transactions') return { title: 'Financials', subtitle: 'Live transaction logs and accounting' };
+    if (path === '/reports') return { title: 'Reports', subtitle: 'Analytical insights and performance data' };
+
+    return { title: 'Management System', subtitle: 'Karim Electronics' };
+  };
+
+  const { title, subtitle } = getPageInfo();
+
   return (
-    <header className="sticky top-0 z-[1000] bg-[#0f172a]/70 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-4 py-4 mb-2 lg:px-6 lg:py-6">
+    <header className="sticky top-0 z-[1000] bg-[#0f172a]/70 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-4 py-4 mb-2 lg:px-6 lg:py-4">
       <div className="flex items-center gap-5 flex-1">
         <button className="lg:hidden text-white hover:bg-white/10 p-2 rounded-lg transition-colors" onClick={toggleSidebar}>
           <Menu size={24} />
         </button>
+        <div className="hidden sm:block">
+          <h1 className="text-2xl font-black text-white tracking-tight leading-none">{title}</h1>
+          <p className="text-[12px] font-medium text-slate-500 tracking-[0.2em] mt-1.5">{subtitle}</p>
+        </div>
       </div>
       <div className="flex items-center gap-3">
         <button className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-800/40 border border-white/10 text-white hover:bg-white/10 transition-colors">
