@@ -24,5 +24,10 @@ export const PlanModel = {
     claimWarranty: async (id, claimData) => {
         const response = await api.post(`/plans/${id}/warranty-claim`, claimData);
         return response.data;
+    },
+
+    payInstallment: async (id, paymentData) => {
+        const response = await api.post(`/plans/${id}/pay`, paymentData);
+        return response.data;
     }
 };

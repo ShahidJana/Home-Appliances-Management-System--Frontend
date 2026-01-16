@@ -11,9 +11,14 @@ import {
   LogOut,
   Bell,
   Menu,
-  X
+  X,
+  Calendar,
+  ChevronDown,
+  DollarSign
 } from 'lucide-react';
 import { AuthModel } from '../services/AuthModel';
+
+import logo from '../assets/Karim_electronic_logo.svg';
 
 const Sidebar = ({ isOpen, toggle }) => {
   const location = useLocation();
@@ -21,13 +26,49 @@ const Sidebar = ({ isOpen, toggle }) => {
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { name: 'Vendors', icon: Truck, path: '/vendors' },
-    { name: 'Employees & Attendance', icon: Users2, path: '/attendance' },
-    { name: 'Customers', icon: Users, path: '/customers' },
+    { name: 'POS', icon: FileText, path: '/pos' },
     { name: 'Inventory', icon: Package, path: '/inventory' },
-    { name: 'Sales & Plans', icon: FileText, path: '/plans' },
+    { name: 'Vendors', icon: Truck, path: '/vendors' },
+    { name: 'Customers', icon: Users, path: '/customers' },
+    { name: 'Installment Plans', icon: FileText, path: '/plans' },
+    {
+      name: 'HR Management',
+      icon: Users2,
+      path: '/attendance?view=attendance',
+      children: [
+        { name: 'Attendance', path: '/attendance?view=attendance', icon: Calendar },
+        { name: 'Employees', path: '/attendance?view=employee', icon: Users }
+      ]
+    },
     { name: 'Reports', icon: LineChart, path: '/reports' },
+    { name: 'Financials', icon: DollarSign, path: '/transactions' },
+    { name: 'Claims', icon: FileText, path: '/claims' },
   ];
+
+  const [expandedItems, setExpandedItems] = useState([]);
+
+  // Removed automatic expansion to keep dropdowns closed by default
+  /*
+  React.useEffect(() => {
+    menuItems.forEach(item => {
+      if (item.children?.some(c => location.pathname + location.search === c.path)) {
+        if (!expandedItems.includes(item.name)) {
+          setExpandedItems(prev => [...prev, item.name]);
+        }
+      }
+    });
+  }, [location.pathname, location.search]);
+  */
+
+  const toggleExpand = (name, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setExpandedItems(prev =>
+      prev.includes(name) ? prev.filter(i => i !== name) : [...prev, name]
+    );
+  };
 
   const handleLogout = () => {
     AuthModel.logout();
@@ -41,46 +82,107 @@ const Sidebar = ({ isOpen, toggle }) => {
         glass-card flex flex-col p-6
         ${isOpen ? 'left-0 rounded-none' : '-left-[300px] lg:left-0'}
     `}>
-      <div className="flex items-center gap-3 px-4 mb-10">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-indigo-500/20">K</div>
-        <div className="flex flex-col">
-          <h3 className="text-lg font-bold leading-none text-white">Karim</h3>
-          <span className="text-xs text-slate-400 uppercase tracking-widest mt-0.5">Electronics</span>
+      <div className="flex-shrink-0 flex items-center gap-3 mb-8 overflow-hidden">
+        <div className="w-full flex items-center justify-center overflow-hidden">
+          <img src={logo} alt="Karim Electronics" className="w-[200px] h-auto object-contain" />
         </div>
-        <button className="lg:hidden ml-auto text-white hover:bg-white/10 p-1 rounded-lg transition-colors" onClick={toggle}>
+        <button className="lg:hidden ml-auto text-white hover:bg-white/10 p-1 rounded-lg transition-colors absolute right-4 top-10" onClick={toggle}>
           <X size={20} />
         </button>
       </div>
 
-      <nav className="flex-1 flex flex-col gap-2">
-        {menuItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            onClick={() => window.innerWidth < 1024 && toggle()}
-            className={`
-                flex items-center gap-3 px-4 py-3 rounded-xl relative transition-all duration-300
-                ${location.pathname === item.path
-                ? 'text-white bg-indigo-500/10'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'}
-            `}
-          >
-            <item.icon size={20} />
-            <span className="font-medium">{item.name}</span>
-            {location.pathname === item.path && (
-              <div className="absolute left-0 w-1 h-1/2 bg-indigo-500 rounded-r-md shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
-            )}
-          </Link>
-        ))}
+      <nav className="flex-1 flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1">
+        {menuItems.map((item) => {
+          const isExpanded = expandedItems.includes(item.name);
+          const hasChildren = !!item.children;
+          const isParentActive = location.pathname === item.path || (hasChildren && item.children.some(c => location.pathname + location.search === c.path));
+
+          return (
+            <React.Fragment key={item.name}>
+              {hasChildren ? (
+                <div className="flex flex-col gap-1">
+                  <Link
+                    to={item.path}
+                    onClick={() => {
+                      window.innerWidth < 1024 && toggle();
+                      if (!isExpanded) setExpandedItems(prev => [...prev, item.name]);
+                    }}
+                    className={`
+                        flex items-center gap-3 px-4 py-3 rounded-xl relative transition-all duration-300
+                        ${isParentActive
+                        ? 'text-white bg-indigo-500/10'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'}
+                    `}
+                  >
+                    <item.icon size={20} />
+                    <span className="font-medium flex-1">{item.name}</span>
+                    <button
+                      onClick={(e) => toggleExpand(item.name, e)}
+                      className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-300 ${isExpanded ? 'rotate-180 text-indigo-400' : 'text-slate-500'}`}
+                      />
+                    </button>
+                    {isParentActive && (
+                      <div className="absolute left-0 w-1.5 h-1/2 bg-indigo-500 rounded-r-md shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
+                    )}
+                  </Link>
+                  {isExpanded && (
+                    <div className="flex flex-col gap-1 pl-10 mt-1 mb-2">
+                      {item.children.map((child) => {
+                        const isChildActive = location.pathname + location.search === child.path;
+                        return (
+                          <Link
+                            key={child.path}
+                            to={child.path}
+                            onClick={() => window.innerWidth < 1024 && toggle()}
+                            className={`
+                              flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300
+                              ${isChildActive
+                                ? 'text-white bg-indigo-500/10'
+                                : 'text-slate-500 hover:text-white hover:bg-white/5'}
+                            `}
+                          >
+                            <child.icon size={16} />
+                            <span className="text-sm font-medium">{child.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to={item.path}
+                  onClick={() => window.innerWidth < 1024 && toggle()}
+                  className={`
+                      flex items-center gap-3 px-4 py-3 rounded-xl relative transition-all duration-300
+                      ${location.pathname === item.path
+                      ? 'text-white bg-indigo-500/10'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'}
+                  `}
+                >
+                  <item.icon size={20} />
+                  <span className="font-medium">{item.name}</span>
+                  {location.pathname === item.path && (
+                    <div className="absolute left-0 w-1 h-1/2 bg-indigo-500 rounded-r-md shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+                  )}
+                </Link>
+              )}
+            </React.Fragment>
+          );
+        })}
       </nav>
 
       <div className="mt-5 p-4 bg-white/5 rounded-2xl flex items-center justify-between border border-white/5">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
-            {user?.name?.[0] || 'A'}
+            {user?.fullName?.[0] || 'A'}
           </div>
           <div className="flex flex-col">
-            <p className="text-sm font-bold text-white">{user?.name || 'Admin'}</p>
+            <p className="text-sm font-bold text-white truncate max-w-[120px]">{user?.fullName || 'Admin'}</p>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide">{user?.role || 'Senior Officer'}</p>
           </div>
         </div>
@@ -93,7 +195,7 @@ const Sidebar = ({ isOpen, toggle }) => {
 };
 
 const Header = ({ toggleSidebar }) => {
-  const [currentTime, setCurrentTime] = React.useState(new Date());
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   React.useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -101,7 +203,7 @@ const Header = ({ toggleSidebar }) => {
   }, []);
 
   return (
-    <header className="flex justify-between items-center px-5 py-5 lg:px-10 lg:py-8 lg:mb-2">
+    <header className="sticky top-0 z-[1000] bg-[#0f172a]/70 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-4 py-4 mb-2 lg:px-6 lg:py-6">
       <div className="flex items-center gap-5 flex-1">
         <button className="lg:hidden text-white hover:bg-white/10 p-2 rounded-lg transition-colors" onClick={toggleSidebar}>
           <Menu size={24} />

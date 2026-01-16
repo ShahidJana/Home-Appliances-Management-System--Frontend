@@ -35,8 +35,6 @@ const InventoryList = () => {
     >
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">Inventory Assets</h1>
-          <p className="text-slate-400">Real-time stock management and valuation</p>
         </div>
         <div className="flex gap-4">
           <button className="px-5 py-2.5 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-colors">Import CSV</button>
@@ -97,8 +95,8 @@ const InventoryList = () => {
               <button
                 key={status}
                 className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${filterStatus === status
-                    ? 'bg-[var(--primary)] text-white shadow-lg'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-[var(--primary)] text-white shadow-lg'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
                 onClick={() => setFilterStatus(status)}
               >
@@ -142,8 +140,8 @@ const InventoryList = () => {
                   {isAdmin && <td className="p-4 md:p-6"><span className="font-semibold text-white">Rs. {item.purchasePrice?.toLocaleString()}</span></td>}
                   <td className="p-4 md:p-6">
                     <span className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider border ${item.status === 'Available' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                        item.status === 'Sold' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
-                          'bg-red-500/10 text-red-400 border-red-500/20'
+                      item.status === 'Sold' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
+                        'bg-red-500/10 text-red-400 border-red-500/20'
                       }`}>
                       {item.status}
                     </span>

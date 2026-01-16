@@ -23,11 +23,16 @@ import {
     UserX,
     TrendingUp,
     History,
-    Trash2
+    Trash2,
+    Plane,
+    Timer,
+    Eye,
+    Edit
 } from 'lucide-react';
 import { useEmployeeController } from '../hooks/useEmployeeController';
 import { AuthModel } from '../services/AuthModel';
 import { AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 
 const Attendance = () => {
     const {
@@ -116,7 +121,16 @@ const Attendance = () => {
         checkOutTime: ''
     });
 
-    const [viewMode, setViewMode] = useState('attendance');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [viewMode, setViewMode] = useState(searchParams.get('view') || 'attendance');
+
+    useEffect(() => {
+        const view = searchParams.get('view');
+        if (view && (view === 'attendance' || view === 'employee')) {
+            setViewMode(view);
+        }
+    }, [searchParams]);
+
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [showManageModal, setShowManageModal] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -221,6 +235,11 @@ const Attendance = () => {
         const matchesSearch = emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             emp.role.toLowerCase().includes(searchQuery.toLowerCase());
 
+        // In Attendance Registry, only show Active employees
+        if (viewMode === 'attendance' && (emp.status || 'Active') !== 'Active') {
+            return false;
+        }
+
         if (isAdmin) return matchesSearch;
         return matchesSearch && String(emp._id) === String(userEmployeeId);
     });
@@ -240,12 +259,31 @@ const Attendance = () => {
             name: emp.name,
             email: emp.email,
             role: emp.role,
-            phone: emp.phone || '',
-            cnic: emp.cnic || '',
+            phone: emp.phone ? formatPhone(emp.phone) : '',
+            cnic: emp.cnic ? formatCNIC(emp.cnic) : '',
             address: emp.address || '',
             status: emp.status || 'Active'
         });
         setShowManageModal(true);
+    };
+
+    const formatCNIC = (val) => {
+        val = val.replace(/\D/g, '');
+        if (val.length > 13) val = val.slice(0, 13);
+        const parts = [];
+        if (val.length > 0) parts.push(val.slice(0, 5));
+        if (val.length > 5) parts.push(val.slice(5, 12));
+        if (val.length > 12) parts.push(val.slice(12, 13));
+        return parts.join('-');
+    };
+
+    const formatPhone = (val) => {
+        val = val.replace(/\D/g, '');
+        if (val.length > 11) val = val.slice(0, 11);
+        const parts = [];
+        if (val.length > 0) parts.push(val.slice(0, 4));
+        if (val.length > 4) parts.push(val.slice(4, 11));
+        return parts.join('-');
     };
 
     const handleUpdateEmployee = async (e) => {
@@ -305,13 +343,9 @@ const Attendance = () => {
             className="flex flex-col gap-8"
         >
             {/* Page Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h1 className="text-2xl md:text-3xl font-bold mb-2">{isAdmin ? 'Attendance Registry' : 'My Attendance'}</h1>
-                    <p className="text-slate-400">{isAdmin ? 'Track employee attendance and manage records' : 'View your attendance history'}</p>
-                </div>
+            <div className="flex justify-end items-center gap-3 mb-2">
                 <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
-                    {isAdmin && (
+                    {isAdmin && viewMode === 'attendance' && (
                         <div className="flex items-center gap-2 bg-white/5 rounded-xl border border-white/10 px-3 py-2 text-sm max-w-[200px]">
                             <Calendar size={18} className="text-slate-400" />
                             <input
@@ -323,7 +357,7 @@ const Attendance = () => {
                             />
                         </div>
                     )}
-                    {isAdmin && (
+                    {isAdmin && viewMode === 'employee' && (
                         <button className="premium-btn with-icon" onClick={() => setShowAddModal(true)}>
                             <UserPlus size={18} />
                             <span>Add Employee</span>
@@ -417,24 +451,7 @@ const Attendance = () => {
 
             {/* Main Content Card */}
             <motion.div className="glass-card overflow-hidden">
-                {isAdmin && (
-                    <div className="flex border-b border-white/10 bg-slate-900/20">
-                        <button
-                            className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold text-sm transition-all ${viewMode === 'attendance' ? 'text-indigo-400 bg-indigo-500/10 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                            onClick={() => setViewMode('attendance')}
-                        >
-                            <Calendar size={16} />
-                            Attendance Registry
-                        </button>
-                        <button
-                            className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold text-sm transition-all ${viewMode === 'employee' ? 'text-indigo-400 bg-indigo-500/10 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                            onClick={() => setViewMode('employee')}
-                        >
-                            <Users2 size={16} />
-                            Employee Database
-                        </button>
-                    </div>
-                )}
+
 
                 {error && (
                     <div className="m-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 flex items-center gap-3 text-sm">
@@ -471,11 +488,11 @@ const Attendance = () => {
                         </div>
                     ) : (
                         <div className="flex flex-col bg-slate-900/10 w-full overflow-x-auto">
-                            <div className="min-w-[800px] grid grid-cols-[2fr_1.2fr_1.2fr_1.5fr_1fr] gap-4 p-4 md:p-6 border-b-2 border-white/10 text-xs font-bold uppercase text-indigo-400 tracking-wider">
+                            <div className={`min-w-[800px] grid ${viewMode === 'attendance' ? 'grid-cols-[100px_100px_150px_1fr]' : 'grid-cols-[250px_200px_150px_1fr]'} gap-4 p-4 md:p-6 border-b-2 border-white/10 text-xs font-bold uppercase text-indigo-400 tracking-wider items-center`}>
                                 <span>Employee</span>
                                 <span>Role</span>
-                                <span>Status</span>
-                                <span>Actions</span>
+                                <span>{viewMode === 'attendance' ? 'Attendance' : 'Account Status'}</span>
+                                <span className="text-right">Actions</span>
                             </div>
                             {filteredEmployees.map((emp, i) => (
                                 <motion.div
@@ -483,32 +500,34 @@ const Attendance = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: i * 0.05 }}
-                                    className="min-w-[800px] grid grid-cols-[2fr_1.2fr_1.2fr_1.5fr_1fr] gap-4 p-4 md:p-6 border-b border-white/5 items-center hover:bg-white/5 transition-colors"
+                                    className={`min-w-[800px] grid ${viewMode === 'attendance' ? 'grid-cols-[100px_100px_150px_1fr]' : 'grid-cols-[250px_200px_150px_1fr]'} gap-4 p-4 md:p-6 border-b border-white/5 items-center hover:bg-white/5 transition-colors`}
                                 >
                                     <div className="flex flex-col justify-center">
                                         <div className="font-semibold text-white text-sm">{emp.name}</div>
                                     </div>
+
                                     <span className="text-sm text-slate-300">{emp.role}</span>
+
                                     <span className="flex items-center">
-                                        {viewMode === 'employee' ? (
-                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wide border ${emp.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
-                                                    emp.status === 'Blocked' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                                                        'bg-slate-500/20 text-slate-400 border-slate-500/30'
-                                                }`}>
-                                                {emp.status || 'Active'}
-                                            </span>
-                                        ) : (
+                                        {viewMode === 'attendance' ? (
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wide border ${(emp.attendance?.status || 'Not Marked') === 'Present' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
-                                                    (emp.attendance?.status || 'Not Marked') === 'Absent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                                                        (emp.attendance?.status || 'Not Marked') === 'Late' ? 'bg-orange-400/20 text-orange-400 border-orange-400/30' :
-                                                            (emp.attendance?.status || 'Not Marked') === 'Leave' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                                                                'bg-slate-500/20 text-slate-400 border-slate-500/30'
+                                                (emp.attendance?.status || 'Not Marked') === 'Absent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                                    (emp.attendance?.status || 'Not Marked') === 'Late' ? 'bg-orange-400/20 text-orange-400 border-orange-400/30' :
+                                                        (emp.attendance?.status || 'Not Marked') === 'Leave' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                                                            'bg-slate-500/20 text-slate-400 border-slate-500/30'
                                                 }`}>
                                                 {emp.attendance?.status || 'Not Marked'}
                                             </span>
+                                        ) : (
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wide border ${emp.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                                                emp.status === 'Blocked' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                                    'bg-slate-500/20 text-slate-400 border-slate-500/30'
+                                                }`}>
+                                                {emp.status || 'Active'}
+                                            </span>
                                         )}
                                     </span>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-end gap-2">
                                         {isAdmin ? (
                                             viewMode === 'attendance' ? (
                                                 <>
@@ -527,20 +546,59 @@ const Attendance = () => {
                                                         <XCircle size={16} />
                                                     </button>
                                                     <button
+                                                        onClick={() => emp.status === 'Active' && handleMark(emp._id, 'Half Day')}
+                                                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-orange-400 hover:bg-orange-500/20 text-slate-400"
+                                                        title="Mark Half Day"
+                                                    >
+                                                        <Timer size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => emp.status === 'Active' && handleMark(emp._id, 'Leave')}
+                                                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-purple-400 hover:bg-purple-500/20 text-slate-400"
+                                                        title="Mark Leave"
+                                                    >
+                                                        <Plane size={16} />
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleOpenEdit(emp)}
                                                         className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-white hover:bg-white/10 text-slate-400"
-                                                        title="Edit History"
+                                                        title="View History"
                                                     >
                                                         <History size={16} />
                                                     </button>
                                                 </>
                                             ) : (
-                                                <button
-                                                    className="text-indigo-400 flex items-center gap-1 text-sm font-semibold hover:text-indigo-300 transition-colors"
-                                                    onClick={() => handleViewProfile(emp)}
-                                                >
-                                                    View Profile
-                                                </button>
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        onClick={() => handleViewProfile(emp)}
+                                                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-blue-400 hover:bg-blue-500/20 text-slate-400"
+                                                        title="View Profile"
+                                                    >
+                                                        <Eye size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleOpenManage(emp)}
+                                                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-yellow-400 hover:bg-yellow-500/20 text-slate-400"
+                                                        title="Edit Employee"
+                                                    >
+                                                        <Edit size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={async () => {
+                                                            if (window.confirm(`Are you sure you want to deactivate ${emp.name}?`)) {
+                                                                try {
+                                                                    await deleteEmployee(emp._id);
+                                                                } catch (err) {
+                                                                    alert(err.message);
+                                                                }
+                                                            }
+                                                        }}
+                                                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-red-400 hover:bg-red-500/20 text-slate-400"
+                                                        title="Deactivate Employee"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
                                             )
                                         ) : (
                                             (emp._id === userEmployeeId && isToday) && (
@@ -565,40 +623,42 @@ const Attendance = () => {
             </motion.div>
 
             {/* Personal History Section */}
-            {!isAdmin && personalHistory.length > 0 && (
-                <motion.div className="glass-card overflow-hidden p-6">
-                    <div className="flex flex-col gap-1 mb-6">
-                        <h3 className="text-lg font-bold text-white">Personal Attendance History</h3>
-                        <p className="text-sm text-slate-400">Last 30 days of activity</p>
-                    </div>
-                    <div className="flex flex-col bg-slate-900/20 rounded-xl overflow-hidden">
-                        <div className="grid grid-cols-5 gap-4 p-4 border-b border-white/10 text-xs font-bold uppercase text-indigo-400 tracking-wider">
-                            <span>Date</span>
-                            <span>Status</span>
-                            <span>Time In</span>
-                            <span>Time Out</span>
-                            <span>Hours</span>
+            {
+                !isAdmin && personalHistory.length > 0 && (
+                    <motion.div className="glass-card overflow-hidden p-6">
+                        <div className="flex flex-col gap-1 mb-6">
+                            <h3 className="text-lg font-bold text-white">Personal Attendance History</h3>
+                            <p className="text-sm text-slate-400">Last 30 days of activity</p>
                         </div>
-                        {personalHistory.map((rec, i) => (
-                            <div key={rec._id} className="grid grid-cols-5 gap-4 p-4 border-b border-white/5 items-center hover:bg-white/5 transition-colors last:border-0">
-                                <span className="text-sm text-slate-300">{new Date(rec.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                                <span className="flex items-center">
-                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide border ${(rec.status || 'Not Marked') === 'Present' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
-                                        (rec.status || 'Not Marked') === 'Absent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                                            (rec.status || 'Not Marked') === 'Late' ? 'bg-orange-400/20 text-orange-400 border-orange-400/30' :
-                                                'bg-slate-500/20 text-slate-400 border-slate-500/30'
-                                        }`}>
-                                        {rec.status}
-                                    </span>
-                                </span>
-                                <span className="text-sm text-slate-300 font-mono">{rec.checkInTime ? new Date(rec.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</span>
-                                <span className="text-sm text-slate-300 font-mono">{rec.checkOutTime ? new Date(rec.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</span>
-                                <span className="text-sm font-semibold text-white">{formatWorkedHours(rec.totalHours)}</span>
+                        <div className="flex flex-col bg-slate-900/20 rounded-xl overflow-hidden">
+                            <div className="grid grid-cols-5 gap-4 p-4 border-b border-white/10 text-xs font-bold uppercase text-indigo-400 tracking-wider">
+                                <span>Date</span>
+                                <span>Status</span>
+                                <span>Time In</span>
+                                <span>Time Out</span>
+                                <span>Hours</span>
                             </div>
-                        ))}
-                    </div>
-                </motion.div>
-            )}
+                            {personalHistory.map((rec, i) => (
+                                <div key={rec._id} className="grid grid-cols-5 gap-4 p-4 border-b border-white/5 items-center hover:bg-white/5 transition-colors last:border-0">
+                                    <span className="text-sm text-slate-300">{new Date(rec.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                    <span className="flex items-center">
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide border ${(rec.status || 'Not Marked') === 'Present' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                                            (rec.status || 'Not Marked') === 'Absent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                                (rec.status || 'Not Marked') === 'Late' ? 'bg-orange-400/20 text-orange-400 border-orange-400/30' :
+                                                    'bg-slate-500/20 text-slate-400 border-slate-500/30'
+                                            }`}>
+                                            {rec.status}
+                                        </span>
+                                    </span>
+                                    <span className="text-sm text-slate-300 font-mono">{rec.checkInTime ? new Date(rec.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</span>
+                                    <span className="text-sm text-slate-300 font-mono">{rec.checkOutTime ? new Date(rec.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</span>
+                                    <span className="text-sm font-semibold text-white">{formatWorkedHours(rec.totalHours)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </motion.div>
+                )
+            }
 
             <AnimatePresence>
                 {showEditModal && (
@@ -709,7 +769,7 @@ const Attendance = () => {
                                             type="text"
                                             required
                                             value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                            onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })}
                                             placeholder="0300-1234567"
                                             className="bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-all placeholder:text-slate-600"
                                         />
@@ -719,7 +779,7 @@ const Attendance = () => {
                                         <input
                                             type="text"
                                             value={formData.cnic}
-                                            onChange={(e) => setFormData({ ...formData, cnic: e.target.value })}
+                                            onChange={(e) => setFormData({ ...formData, cnic: formatCNIC(e.target.value) })}
                                             placeholder="35201-XXXXXXX-X"
                                             className="bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-all placeholder:text-slate-600"
                                         />
@@ -767,7 +827,19 @@ const Attendance = () => {
                         <motion.div className="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto relative p-6" initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}>
                             <div className="flex justify-between items-start mb-6 pb-4 border-b border-white/10">
                                 <div>
-                                    <h2 className="text-xl font-bold text-white">{selectedEmployee?.name}</h2>
+                                    <div className="flex items-center gap-3 mb-1">
+                                        <h2 className="text-xl font-bold text-white">{selectedEmployee?.name}</h2>
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${selectedEmployee?.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                            selectedEmployee?.status === 'Blocked' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                                'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                                            }`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${selectedEmployee?.status === 'Active' ? 'bg-emerald-400' :
+                                                selectedEmployee?.status === 'Blocked' ? 'bg-red-400' :
+                                                    'bg-slate-400'
+                                                }`} />
+                                            {selectedEmployee?.status || 'Active'}
+                                        </span>
+                                    </div>
                                     <p className="text-sm text-slate-400">{selectedEmployee?.role} • Joined {selectedEmployee?.createdAt ? new Date(selectedEmployee.createdAt).toLocaleDateString() : 'N/A'}</p>
                                 </div>
                                 <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white" onClick={() => setShowProfileModal(false)}><X /></button>
@@ -865,7 +937,7 @@ const Attendance = () => {
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         <label className="flex items-center gap-2 text-sm text-slate-400 font-medium"><Phone size={16} /> Phone</label>
-                                        <input type="text" value={employeeFormData.phone} onChange={(e) => setEmployeeFormData({ ...employeeFormData, phone: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-all placeholder:text-slate-600" />
+                                        <input type="text" value={employeeFormData.phone} onChange={(e) => setEmployeeFormData({ ...employeeFormData, phone: formatPhone(e.target.value) })} className="bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-all placeholder:text-slate-600" />
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         <label className="flex items-center gap-2 text-sm text-slate-400 font-medium"><AlertCircle size={16} /> Account Status</label>
@@ -945,7 +1017,7 @@ const Attendance = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </motion.div >
     );
 };
 
