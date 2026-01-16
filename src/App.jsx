@@ -8,6 +8,9 @@ import VendorList from './pages/VendorList';
 import Attendance from './pages/Attendance';
 import Reports from './pages/Reports';
 import Plans from './pages/Plans';
+import POS from './pages/POS';
+import Transactions from './pages/Transactions';
+import Claims from './pages/Claims';
 import MainLayout from './layouts/MainLayout';
 
 function App() {
@@ -46,6 +49,18 @@ function App() {
                 <Route
                     path="/plans"
                     element={isAuthenticated ? <MainLayout><Plans /></MainLayout> : <Navigate to="/login" />}
+                />
+                <Route
+                    path="/pos"
+                    element={isAuthenticated ? <MainLayout><POS /></MainLayout> : <Navigate to="/login" />}
+                />
+                <Route
+                    path="/transactions"
+                    element={isAuthenticated ? <MainLayout><Transactions /></MainLayout> : <Navigate to="/login" />}
+                />
+                <Route
+                    path="/claims"
+                    element={isAuthenticated ? <MainLayout><Claims /></MainLayout> : <Navigate to="/login" />}
                 />
 
                 <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />

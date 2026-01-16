@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { LogIn, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { useAuthController } from '../hooks/useAuthController';
 
+import logo from '../assets/Karim_Electronics_Logo.png';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,11 +37,13 @@ const Login = () => {
         className="glass-card w-full max-w-[440px] p-12 relative overflow-hidden"
       >
         <div className="text-center mb-10 relative">
-          <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-20 h-20 bg-[var(--primary)] blur-[40px] opacity-30 -z-10"></div>
-          <h1 className="font-sans text-[28px] font-bold mb-2 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-            Karim Electronics
-          </h1>
-          <p className="text-slate-400 text-sm">Enterprise Management Portal</p>
+          <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-40 h-40 bg-[var(--primary)] blur-[60px] opacity-20 -z-10"></div>
+          <div className="flex justify-center mb-6">
+            <div className="flex items-center justify-center">
+              <img src={logo} alt="Karim Electronics Logo" className="w-32 h-auto" />
+            </div>
+          </div>
+          <p className="text-slate-400 text-sm font-medium tracking-wider uppercase">Enterprise Management Portal</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
