@@ -14,9 +14,12 @@ import {
   X,
   Calendar,
   ChevronDown,
-  DollarSign
+  DollarSign,
+  Plus,
+  Database
 } from 'lucide-react';
 import { AuthModel } from '../services/AuthModel';
+import { Toaster } from 'react-hot-toast';
 
 import logo from '../assets/Karim_electronic_logo.svg';
 
@@ -26,8 +29,22 @@ const Sidebar = ({ isOpen, toggle }) => {
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { name: 'POS', icon: FileText, path: '/pos' },
-    { name: 'Inventory', icon: Package, path: '/inventory' },
+    { name: 'Point of Sale', icon: FileText, path: '/pos' },
+    // { name: 'Inventory', icon: Package, path: '/inventory' },
+    {
+      name: 'Purchases',
+      icon: Truck,
+      path: '/purchases',
+      children: [
+        { name: 'Purchase History', path: '/purchases', icon: Database },
+        { name: 'Add Purchase', path: '/purchases/add', icon: Plus }
+      ]
+    },
+    {
+      name: 'Inventory',
+      icon: Package,
+      path: '/inventory',
+    },
     { name: 'Vendors', icon: Truck, path: '/vendors' },
     { name: 'Customers', icon: Users, path: '/customers' },
     { name: 'Installment Plans', icon: FileText, path: '/plans' },
@@ -41,7 +58,7 @@ const Sidebar = ({ isOpen, toggle }) => {
       ]
     },
     { name: 'Warranty Claims', icon: FileText, path: '/claims' },
-    { name: 'Financials', icon: DollarSign, path: '/transactions' },
+    { name: 'Payments', icon: DollarSign, path: '/payments' },
     { name: 'Reports', icon: LineChart, path: '/reports' },
   ];
 
@@ -209,7 +226,11 @@ const Header = ({ toggleSidebar }) => {
 
     if (path === '/dashboard') return { title: 'Dashboard', subtitle: 'Welcome back to your store overview' };
     if (path === '/pos') return { title: 'Point of Sale', subtitle: 'Terminal #01 • Active Session' };
-    if (path === '/inventory') return { title: 'Inventory', subtitle: 'Manage your product stock & categories' };
+    if (path.includes('/purchases')) {
+      if (path === '/purchases/add') return { title: 'Add New Purchase', subtitle: 'Enter details for new mobile phones or home appliances in your stock.' };
+      return { title: 'Purchase History', subtitle: 'Historical record of all units ever purchased' };
+    }
+    if (path === '/inventory') return { title: 'Stock Management', subtitle: 'Grouped overview of available products by model' };
     if (path === '/vendors') return { title: 'Vendors', subtitle: 'Supplier directory and purchase history' };
     if (path === '/customers') return { title: 'Customers', subtitle: 'Client management and credit scores' };
     if (path === '/plans') return { title: 'Installment Plans', subtitle: 'Active financing and payment schedules' };
@@ -218,7 +239,7 @@ const Header = ({ toggleSidebar }) => {
       return { title: 'Attendance', subtitle: 'Daily presence and time logs' };
     }
     if (path === '/claims') return { title: 'Warranty Claims', subtitle: 'Track and manage customer warranty & repair claims' };
-    if (path === '/transactions') return { title: 'Financials', subtitle: 'Live transaction logs and accounting' };
+    if (path === '/payments') return { title: 'Payments', subtitle: 'Live payment logs and accounting' };
     if (path === '/reports') return { title: 'Reports', subtitle: 'Analytical insights and performance data' };
 
     return { title: 'Management System', subtitle: 'Karim Electronics' };
@@ -256,6 +277,18 @@ const MainLayout = ({ children }) => {
 
   return (
     <div className="flex min-h-screen bg-[var(--bg-main)] relative">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#1e293b',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(10px)'
+          }
+        }}
+      />
       {isSidebarOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}

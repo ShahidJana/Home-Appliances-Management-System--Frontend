@@ -24,7 +24,7 @@ import {
 
 import { CustomerModel } from '../services/CustomerModel';
 import { PlanModel } from '../services/PlanModel';
-import { InventoryModel } from '../services/InventoryModel';
+import { PurchaseModel } from '../services/PurchaseModel';
 import { AuthModel } from '../services/AuthModel';
 
 const POS = () => {
@@ -72,7 +72,7 @@ const POS = () => {
             if (productSearchTerm.length < 2) { setProductResults([]); return; }
             setLoadingProducts(true);
             try {
-                const data = await InventoryModel.getAll({ status: 'Available', search: productSearchTerm });
+                const data = await PurchaseModel.getAll({ status: 'Available', search: productSearchTerm });
                 setProductResults(data);
             } catch (error) { console.error(error); } finally { setLoadingProducts(false); }
         };
@@ -96,9 +96,19 @@ const POS = () => {
     // Cart Management
     const addToCart = (product) => {
         setCart(prev => {
+            // Check if this specific physical unit (by _id) is already in cart
             const exists = prev.find(item => item.product._id === product._id);
-            if (exists) return prev.map(item => item.product._id === product._id ? { ...item, quantity: item.quantity + 1 } : item);
-            return [...prev, { product, quantity: 1, price: product.sellingPrice || 0, disc: 0, tax: 0 }];
+            if (exists) return prev; // Don't add same unit twice
+
+            // If we found a group and clicked "Add", we should ideally pick an available unit.
+            // But here "product" is already a specific unit passed from the UI.
+            return [...prev, {
+                product,
+                quantity: 1, // Quantity is always 1 for unique serial/IMEI items
+                price: product.sellingPrice || 0,
+                disc: 0,
+                tax: 0
+            }];
         });
         setProductSearchTerm('');
         setProductResults([]);
@@ -107,6 +117,9 @@ const POS = () => {
     const removeFromCart = (productId) => setCart(prev => prev.filter(item => item.product._id !== productId));
 
     const updateQuantity = (productId, qty) => {
+        // For unique serialized items, quantity should typically stay 1 per row.
+        // But we can allow it if the user really wants to group them (risky for tracking).
+        // Better: Disable quantity editing for physical units, or handle it by adding/removing specific units.
         if (qty < 1) return;
         setCart(prev => prev.map(item => item.product._id === productId ? { ...item, quantity: qty } : item));
     };
@@ -205,7 +218,7 @@ const POS = () => {
                         <Search size={18} className="text-slate-400 mr-3" />
                         <input
                             type="text"
-                            placeholder="Find items by name, model or IMEI..."
+                            placeholder="Find items by name, model, PID, IMEI or Serial Number..."
                             value={productSearchTerm}
                             onChange={(e) => setProductSearchTerm(e.target.value)}
                             className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-slate-600 font-medium"
@@ -221,26 +234,35 @@ const POS = () => {
                                     acc[key].count++;
                                     acc[key].items.push(item);
                                     return acc;
-                                }, {})).map(group => (
-                                    <div key={group._id} className="w-full flex items-center justify-between p-3 hover:bg-white/5 border-b border-white/5 last:border-0 group transition-colors">
-                                        <div className="flex items-center gap-4 flex-1" onClick={() => addToCart(group.items[0])}>
-                                            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/10 group-hover:scale-105 transition-transform"><Package size={22} /></div>
-                                            <div>
-                                                <p className="text-sm font-black text-white uppercase tracking-wide">{group.productName}</p>
-                                                <p className="text-[10px] text-slate-500 font-mono tracking-wider">{group.model} <span className="text-slate-700">|</span> <span className="text-indigo-400 font-bold">Stock: {group.count}</span></p>
+                                }, {})).map(group => {
+                                    // Pick the first item from the group that isn't already in the cart
+                                    const availableItem = group.items.find(i => !cart.some(cartItem => cartItem.product._id === i._id)) || group.items[0];
+
+                                    return (
+                                        <div key={group._id} className="w-full flex items-center justify-between p-3 hover:bg-white/5 border-b border-white/5 last:border-0 group transition-colors">
+                                            <div className="flex items-center gap-4 flex-1" onClick={() => addToCart(availableItem)}>
+                                                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/10 group-hover:scale-105 transition-transform"><Package size={22} /></div>
+                                                <div>
+                                                    <p className="text-sm font-black text-white uppercase tracking-wide">{group.productName}</p>
+                                                    <p className="text-[10px] text-slate-500 font-mono tracking-wider">{group.model} <span className="text-slate-700">|</span> <span className="text-indigo-400 font-bold">Stock: {group.count}</span></p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-right">
+                                                    <p className="text-sm font-black text-white tracking-tight">Rs. {group.sellingPrice?.toLocaleString()}</p>
+                                                    <p className="text-[9px] text-emerald-500 font-black uppercase tracking-[0.2em]">In Stock</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => addToCart(availableItem)}
+                                                    disabled={!group.items.some(i => !cart.some(ci => ci.product._id === i._id))}
+                                                    className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-emerald-500/20 disabled:hover:text-emerald-400"
+                                                >
+                                                    <Plus size={16} strokeWidth={3} />
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-right">
-                                                <p className="text-sm font-black text-white tracking-tight">Rs. {group.sellingPrice?.toLocaleString()}</p>
-                                                <p className="text-[9px] text-emerald-500 font-black uppercase tracking-[0.2em]">In Stock</p>
-                                            </div>
-                                            <button onClick={() => addToCart(group.items[0])} className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all">
-                                                <Plus size={16} strokeWidth={3} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </motion.div>
                         )}
                     </AnimatePresence>

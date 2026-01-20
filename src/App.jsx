@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CustomerList from './pages/CustomerList';
-import InventoryList from './pages/InventoryList';
+import PurchaseList from './pages/PurchaseList';
+import AddPurchase from './pages/AddPurchase';
+import InventoryStock from './pages/InventoryStock';
 import VendorList from './pages/VendorList';
 import Attendance from './pages/Attendance';
 import Reports from './pages/Reports';
@@ -30,10 +32,23 @@ function App() {
                     path="/customers"
                     element={isAuthenticated ? <MainLayout><CustomerList /></MainLayout> : <Navigate to="/login" />}
                 />
+
+                {/* Purchases Section */}
+                <Route
+                    path="/purchases"
+                    element={isAuthenticated ? <MainLayout><PurchaseList /></MainLayout> : <Navigate to="/login" />}
+                />
+                <Route
+                    path="/purchases/add"
+                    element={isAuthenticated ? <MainLayout><AddPurchase /></MainLayout> : <Navigate to="/login" />}
+                />
+
+                {/* New Inventory Section */}
                 <Route
                     path="/inventory"
-                    element={isAuthenticated ? <MainLayout><InventoryList /></MainLayout> : <Navigate to="/login" />}
+                    element={isAuthenticated ? <MainLayout><InventoryStock /></MainLayout> : <Navigate to="/login" />}
                 />
+
                 <Route
                     path="/vendors"
                     element={isAuthenticated ? <MainLayout><VendorList /></MainLayout> : <Navigate to="/login" />}
@@ -55,7 +70,7 @@ function App() {
                     element={isAuthenticated ? <MainLayout><POS /></MainLayout> : <Navigate to="/login" />}
                 />
                 <Route
-                    path="/transactions"
+                    path="/payments"
                     element={isAuthenticated ? <MainLayout><Transactions /></MainLayout> : <Navigate to="/login" />}
                 />
                 <Route

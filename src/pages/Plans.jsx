@@ -1,127 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import { motion } from 'framer-motion';
-// import {
-//     FileText,
-//     Plus,
-//     Search,
-//     Filter,
-//     ChevronDown,
-//     CircleDollarSign,
-//     User,
-//     Package,
-//     ArrowRight
-// } from 'lucide-react';
-// import { usePlanController } from '../hooks/usePlanController';
-
-// const Plans = () => {
-//     const { plans, loading, fetchPlans } = usePlanController();
-//     const [filter, setFilter] = useState('All');
-
-//     useEffect(() => {
-//         fetchPlans();
-//     }, [fetchPlans]);
-
-//     return (
-//         <motion.div
-//             initial={{ opacity: 0 }}
-//             animate={{ opacity: 1 }}
-//             className="flex flex-col gap-8"
-//         >
-//             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-//                 <div>
-//                     <h1 className="text-2xl md:text-3xl font-bold mb-2">Sales & Installment Plans</h1>
-//                     <p className="text-slate-400">Monitor active contracts and recovery schedules</p>
-//                 </div>
-//                 <button className="premium-btn with-icon">
-//                     <Plus size={18} />
-//                     <span>New Sale Plan</span>
-//                 </button>
-//             </div>
-
-//             <div className="glass-card flex flex-wrap items-center justify-between px-6 py-4 gap-4">
-//                 <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 flex-1 max-w-md transition-colors focus-within:bg-white/10 focus-within:border-[var(--primary)]">
-//                     <Search size={18} className="text-slate-400" />
-//                     <input
-//                         type="text"
-//                         placeholder="Search by Plan ID, Customer or Product..."
-//                         className="bg-transparent border-none outline-none text-white w-full placeholder-slate-400 focus:ring-0 p-0"
-//                     />
-//                 </div>
-//                 <div className="flex items-center gap-2 flex-wrap">
-//                     {['All', 'Active', 'Overdue', 'Completed'].map(f => (
-//                         <button
-//                             key={f}
-//                             className={`filter-chip ${filter === f ? 'active' : ''}`}
-//                             onClick={() => setFilter(f)}
-//                         >
-//                             {f}
-//                         </button>
-//                     ))}
-//                 </div>
-//             </div>
-
-//             <div className="flex flex-col gap-4 p-4">
-//                 {plans.map((plan, i) => (
-//                     <motion.div
-//                         key={plan._id}
-//                         initial={{ opacity: 0, y: 10 }}
-//                         animate={{ opacity: 1, y: 0 }}
-//                         transition={{ delay: i * 0.05 }}
-//                         className="glass-card grid grid-cols-1 md:grid-cols-[2fr_2fr_1.5fr_40px] p-8 items-center gap-6 transition-transform hover:translate-x-1"
-//                     >
-//                         <div className="w-full">
-//                             <div className="font-mono font-bold text-[var(--primary)] text-sm mb-2 block">
-//                                 #{plan._id.slice(-6).toUpperCase()}
-//                             </div>
-//                             <div className="space-y-1">
-//                                 <div className="flex items-center gap-2 text-sm text-slate-300">
-//                                     <User size={14} className="text-slate-500" />
-//                                     <span>{plan.customer?.fullName || 'Walk-in Customer'}</span>
-//                                 </div>
-//                                 <div className="flex items-center gap-2 text-sm text-slate-300">
-//                                     <Package size={14} className="text-slate-500" />
-//                                     <span>{plan.productName}</span>
-//                                 </div>
-//                             </div>
-//                         </div>
-
-//                         <div className="flex flex-col sm:flex-row gap-6 w-full">
-//                             <div className="flex flex-col gap-1">
-//                                 <span className="text-[11px] text-slate-400 uppercase tracking-wider">Total Amount</span>
-//                                 <span className="font-bold text-base">Rs. {plan.totalAmount?.toLocaleString()}</span>
-//                             </div>
-//                             <div className="flex flex-col gap-1">
-//                                 <span className="text-[11px] text-slate-400 uppercase tracking-wider">Remaining</span>
-//                                 <span className="font-bold text-base text-[var(--secondary)]">Rs. {plan.remainingAmount?.toLocaleString()}</span>
-//                             </div>
-//                         </div>
-
-//                         <div className="w-full">
-//                             <div className={`status-badge ${plan.status.toLowerCase()} mb-3`}>
-//                                 {plan.status}
-//                             </div>
-//                             <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-//                                 <div className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]" style={{ width: '65%' }}></div>
-//                             </div>
-//                         </div>
-
-//                         <button className="icon-btn-rounded hidden md:flex">
-//                             <ArrowRight size={18} />
-//                         </button>
-//                     </motion.div>
-//                 ))}
-//             </div>
-//         </motion.div>
-//     );
-// };
-
-// export default Plans;
-
-
-
-
-
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, User, Package, ArrowRight, Calendar, X, CheckCircle, DollarSign, Clock } from 'lucide-react';
@@ -129,7 +5,7 @@ import { Plus, Search, User, Package, ArrowRight, Calendar, X, CheckCircle, Doll
 import { VendorModel } from '../services/VendorModel';
 import { CustomerModel } from '../services/CustomerModel';
 import { PlanModel } from '../services/PlanModel';
-import { InventoryModel } from '../services/InventoryModel';
+import { PurchaseModel } from '../services/PurchaseModel';
 import { AuthModel } from '../services/AuthModel';
 
 
@@ -408,147 +284,118 @@ const Plans = () => {
             </div>
 
             <div className="flex flex-col gap-4 p-4">
-                {filteredPlansList.length > 0 ? filteredPlansList.map((plan, i) => (
-                    <motion.div
-                        key={plan._id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="glass-card grid grid-cols-1 md:grid-cols-[2fr_2fr_1.5fr_40px] p-8 items-center gap-6 transition-transform hover:translate-x-1"
-                    >
-                        <div className="w-full">
-                            <div className="font-mono font-bold text-[var(--primary)] text-sm mb-2 block">
-                                #{plan._id.slice(-6).toUpperCase()}
-                            </div>
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2 text-sm text-slate-300">
-                                    <User size={14} className="text-slate-500" />
-                                    <span>{plan.customer?.fullName || plan.customerName || 'Walk-in Customer'}</span>
+                {filteredPlansList.length > 0 ? filteredPlansList.map((plan, i) => {
+                    const totalAmount = plan.price || plan.totalAmount || 0;
+                    const duration = plan.durationMonths || parseInt(plan.installmentPlan) || 0;
+
+                    const schedule = plan.schedule || [];
+                    const paidInstallments = schedule.filter(s => s.status === 'Paid');
+                    const totalPaidAmount = paidInstallments.reduce((sum, s) => sum + (s.paidAmount || s.amount), 0);
+
+                    const remaining = Math.max(0, totalAmount - totalPaidAmount);
+                    const paidCount = paidInstallments.length;
+
+                    const progress = totalAmount > 0 ? (totalPaidAmount / totalAmount) * 100 : 0;
+
+                    return (
+                        <motion.div
+                            key={plan._id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.03 }}
+                            className="glass-card p-4 transition-all hover:bg-white/5 group border border-white/5 hover:border-[var(--primary)]/30 relative overflow-hidden"
+                        >
+                            <div className="flex flex-col md:flex-row gap-4 items-center relative z-10">
+                                {/* Left Section: ID & Customer */}
+                                <div className="flex-1 min-w-[200px] flex gap-3 items-center w-full">
+                                    <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] shrink-0 font-bold border border-[var(--primary)]/20">
+                                        {plan.customer?.fullName?.[0] || <User size={18} />}
+                                    </div>
+                                    <div className="flex flex-col overflow-hidden">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-mono text-[var(--primary)] font-bold bg-[var(--primary)]/10 px-1.5 py-0.5 rounded tracking-wider">
+                                                #{plan._id.slice(-6).toUpperCase()}
+                                            </span>
+                                            <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                                                <Calendar size={10} />
+                                                {plan.preferredDueDate ? `${plan.preferredDueDate}th` : '5th'}
+                                            </span>
+                                        </div>
+                                        <h3 className="font-bold text-white text-sm truncate leading-tight mt-1">
+                                            {plan.customer?.fullName || plan.customerName || 'Walk-in Customer'}
+                                        </h3>
+                                        <div className="flex items-center gap-1 text-xs text-slate-400 truncate mt-0.5">
+                                            <Package size={12} className="shrink-0" />
+                                            <span className="truncate">{plan.productName || plan.saleItemName}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-300">
-                                    <Package size={14} className="text-slate-500" />
-                                    <span>{plan.productName || plan.saleItemName}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-300">
-                                    <Calendar size={14} className="text-slate-500" />
-                                    <span>{plan.preferredDueDate || '5'}th of month</span>
-                                </div>
-                                {plan.paymentType === 'Installment' && (() => {
-                                    const schedule = plan.schedule || [];
-                                    const duration = plan.durationMonths || parseInt(plan.installmentPlan) || 0;
 
-                                    // With new backend logic, Advance is included in schedule as a Paid item if it exists.
-                                    // So we just count Paid items in the schedule.
-                                    const paidCount = schedule.filter(s => s.status === 'Paid').length;
+                                {/* Dividers for desktop */}
+                                <div className="hidden md:block w-px h-10 bg-white/10 mx-2"></div>
 
-                                    // If schedule is empty but we have a plan (legacy), assume strictly based on advance logic? 
-                                    // But best to rely on schedule if present.
-                                    const displayedPaidCount = paidCount;
-
-                                    const pendingCount = Math.max(0, duration - displayedPaidCount);
-
-                                    const nextInstallment = schedule.find(s => s.status === 'Pending' || s.status === 'Overdue');
-                                    const isOverdue = nextInstallment?.status === 'Overdue';
-
-                                    return (
-                                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                            <div className={`text-[10px] font-bold px-2 py-0.5 rounded ${isOverdue
-                                                ? 'text-red-400 bg-red-400/10'
-                                                : 'text-blue-400 bg-blue-400/10'
-                                                }`}>
-                                                {displayedPaidCount}/{duration} PAID
-                                            </div>
-                                            {pendingCount > 0 && (
-                                                <div className="text-[10px] font-bold px-2 py-0.5 rounded text-orange-400 bg-orange-400/10">
-                                                    {pendingCount} Pending
-                                                </div>
+                                {/* Middle Section: Stats Grid */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-3 w-full md:w-auto flex-[1.5]">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Total</span>
+                                        <span className="text-sm font-bold text-slate-200">
+                                            {totalAmount.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Paid</span>
+                                        <span className="text-sm font-bold text-emerald-400">
+                                            {totalPaidAmount.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Remaining</span>
+                                        <span className="text-sm font-bold text-[var(--secondary)]">
+                                            {remaining.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Installs</span>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-sm font-bold text-white">{paidCount}/{duration}</span>
+                                            {duration > 0 && paidCount < duration && (
+                                                <span className="text-[9px] text-orange-400 bg-orange-400/10 px-1.5 py-[1px] rounded ml-1">
+                                                    {duration - paidCount} left
+                                                </span>
                                             )}
                                         </div>
-                                    );
-                                })()}
-                            </div>
-                        </div>
+                                    </div>
+                                </div>
 
-                        <div className="flex flex-col sm:flex-row gap-8 w-full">
-                            {(() => {
-                                const totalAmount = plan.price || plan.totalAmount || 0;
-                                const advance = plan.advancePayment || plan.downPayment || 0;
-                                const duration = plan.durationMonths || parseInt(plan.installmentPlan) || 0;
-                                const monthlyAmt = plan.installmentAmount || 0;
-
-                                // Calculate total paid from schedule
-                                const schedule = plan.schedule || [];
-                                const paidInstallments = schedule.filter(s => s.status === 'Paid');
-                                const totalPaidAmount = paidInstallments.reduce((sum, s) => sum + (s.paidAmount || s.amount), 0); // Advance is now in schedule
-                                const remaining = Math.max(0, totalAmount - totalPaidAmount);
-                                const paidCount = schedule.length > 0 ? paidInstallments.length : 0;
-                                // If no schedule, count it as just the advance (1st installment) if durations match
-                                const displayedPaidCount = paidCount;
-
-                                return (
-                                    <>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[11px] text-slate-400 uppercase tracking-wider">Total Amount</span>
-                                            <span className="font-bold text-base">Rs. {totalAmount.toLocaleString()}</span>
+                                {/* Right Section: Status & Actions */}
+                                <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 md:pl-4">
+                                    <div className="flex flex-col items-end gap-1.5 min-w-[100px]">
+                                        <div className={`status-badge ${plan.status.toLowerCase()} text-[10px] py-0.5 px-2.5 shadow-sm`}>
+                                            {plan.status}
                                         </div>
-                                        <div className="flex flex-col gap-1 min-w-[120px]">
-                                            <span className="text-[11px] text-slate-400 uppercase tracking-wider">Installments</span>
-                                            <div className="flex items-baseline gap-2">
-                                                <span className="font-bold text-base text-white">
-                                                    {duration === 0 ? 'Cash' : `${displayedPaidCount}/${duration}`}
-                                                </span>
-                                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Paid</span>
-                                            </div>
-                                            <div className="text-[10px] text-orange-400 font-medium">
-                                                {duration > 0 ? `${Math.max(0, duration - displayedPaidCount)} Pending` : 'Full Paid'}
-                                            </div>
+                                        {/* Mini Progress Bar */}
+                                        <div className="w-full max-w-[100px] h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"
+                                                style={{ width: `${Math.min(100, progress)}%` }}
+                                            />
                                         </div>
-                                        {duration > 0 && (
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] text-slate-400 uppercase tracking-wider">Monthly Pay</span>
-                                                <span className="font-bold text-base text-emerald-400">
-                                                    Rs. {monthlyAmt.toLocaleString() || Math.ceil((totalAmount - advance) / (duration - 1 || 1)).toLocaleString()}
-                                                </span>
-                                            </div>
-                                        )}
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[11px] text-slate-400 uppercase tracking-wider">Remaining</span>
-                                            <span className="font-bold text-base text-[var(--secondary)]">Rs. {remaining.toLocaleString()}</span>
-                                        </div>
+                                    </div>
 
-                                    </>
-                                );
-                            })()}
-                        </div>
-
-                        <div className="w-full">
-                            <div className={`status-badge ${plan.status.toLowerCase()} mb-3`}>
-                                {plan.status}
+                                    <button
+                                        className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-all border border-white/5 hover:scale-105 active:scale-95 group-hover:bg-[var(--primary)] group-hover:border-[var(--primary)]"
+                                        onClick={() => {
+                                            setSelectedPlanForSchedule(plan);
+                                            setIsScheduleModalOpen(true);
+                                        }}
+                                    >
+                                        <ArrowRight size={16} className="group-hover:text-white" />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]" style={{
-                                    width: `${(() => {
-                                        const total = plan.price || plan.totalAmount || 1;
-                                        const advance = plan.advancePayment || plan.downPayment || 0;
-                                        const schedule = plan.schedule || [];
-                                        const paidAmount = schedule.filter(s => s.status === 'Paid').reduce((sum, s) => sum + (s.paidAmount || s.amount), 0);
-                                        return ((advance + paidAmount) / total * 100) || 0;
-                                    })()}%`
-                                }}></div>
-                            </div>
-                        </div>
-
-                        <button
-                            className="icon-btn-rounded hidden md:flex"
-                            onClick={() => {
-                                setSelectedPlanForSchedule(plan);
-                                setIsScheduleModalOpen(true);
-                            }}
-                        >
-                            <ArrowRight size={18} />
-                        </button>
-                    </motion.div>
-                )) : (
+                        </motion.div>
+                    );
+                }) : (
                     <div className="text-center py-20 text-slate-500">
                         <Package size={48} className="mx-auto mb-4 opacity-20" />
                         <p>No sales plans found matching your filters.</p>
@@ -927,8 +774,8 @@ const Plans = () => {
                                 {/* Summary Cards */}
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-                                        <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">Total Loan</span>
-                                        <span className="text-lg font-bold text-white">Rs. {selectedPlanForSchedule.totalAmount?.toLocaleString()}</span>
+                                        <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">Total Amount</span>
+                                        <span className="text-lg font-bold text-white">Rs. {selectedPlanForSchedule.totalAmount?.toLocaleString() || selectedPlanForSchedule.price?.toLocaleString()}</span>
                                     </div>
                                     <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                                         <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">Paid Amount</span>
@@ -940,10 +787,10 @@ const Plans = () => {
                                         <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">Remaining</span>
                                         {(() => {
                                             const paid = (selectedPlanForSchedule.schedule?.filter(s => s.status === 'Paid').reduce((acc, curr) => acc + (curr.paidAmount || curr.amount), 0) || 0);
-                                            const total = selectedPlanForSchedule.totalAmount || 0;
+                                            const total = (selectedPlanForSchedule.price || selectedPlanForSchedule.totalAmount || 0);
                                             return (
                                                 <span className="text-lg font-bold text-[var(--secondary)]">
-                                                    Rs. {(total - paid).toLocaleString()}
+                                                    Rs. {Math.max(0, total - paid).toLocaleString()}
                                                 </span>
                                             );
                                         })()}
