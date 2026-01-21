@@ -317,8 +317,14 @@ const Plans = () => {
                                                 #{plan._id.slice(-6).toUpperCase()}
                                             </span>
                                             <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                                                <Calendar size={10} />
-                                                {plan.preferredDueDate ? `${plan.preferredDueDate}th` : '5th'}
+                                                <Calendar size={10} /> Due Date:
+                                                {` ${plan.schedule?.length
+                                                    ? (() => {
+                                                        const d = new Date(plan.schedule.at(-1).dueDate).getDate();
+                                                        return d + (d > 3 && d < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][d % 10] || 'th');
+                                                    })()
+                                                    : '5th'
+                                                    }`}
                                             </span>
                                         </div>
                                         <h3 className="font-bold text-white text-sm truncate leading-tight mt-1">

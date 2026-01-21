@@ -96,7 +96,7 @@ const Sidebar = ({ isOpen, toggle }) => {
     <div className={`
         fixed lg:sticky top-0 lg:top-5 h-screen lg:h-[calc(100vh-40px)] 
         w-[280px] lg:m-5 z-[1001] transition-all duration-300 ease-in-out
-        glass-card flex flex-col p-6
+        glass-card flex flex-col p-6 no-print
         ${isOpen ? 'left-0 rounded-none' : '-left-[300px] lg:left-0'}
     `}>
       <div className="flex-shrink-0 flex items-center gap-3 mb-8 overflow-hidden">
@@ -248,7 +248,7 @@ const Header = ({ toggleSidebar }) => {
   const { title, subtitle } = getPageInfo();
 
   return (
-    <header className="sticky top-0 z-[1000] bg-[#0f172a]/70 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-4 py-4 mb-2 lg:px-6 lg:py-4">
+    <header className="sticky top-0 z-[1000] bg-[#0f172a]/70 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-4 py-4 mb-2 lg:px-6 lg:py-4 no-print">
       <div className="flex items-center gap-5 flex-1">
         <button className="lg:hidden text-white hover:bg-white/10 p-2 rounded-lg transition-colors" onClick={toggleSidebar}>
           <Menu size={24} />

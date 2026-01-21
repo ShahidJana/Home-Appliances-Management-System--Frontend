@@ -60,7 +60,7 @@ const InventoryStock = () => {
     });
 
     const groupedItemsMap = filteredItems.reduce((acc, item) => {
-        const key = `${item.productName}-${item.model}-${item.condition}`;
+        const key = `${item.productName}-${item.model}`;
         if (!acc[key]) {
             acc[key] = {
                 ...item,
@@ -318,32 +318,6 @@ const InventoryStock = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    {/* <td className="px-6 py-5 text-right">
-                                                        <div className="flex flex-col items-end gap-2.5">
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.1em]">Cost Price:</span>
-                                                                <span className="text-sm font-black text-white font-mono">Rs. {item.purchasePrice?.toLocaleString()}</span>
-                                                            </div>
-
-                                                            <div className="flex items-center gap-3">
-                                                                <span className={`text-[10px] font-black uppercase tracking-[0.1em] ${item.status === 'Sold' ? 'text-blue-400' : 'text-slate-500'}`}>
-                                                                    {item.status === 'Sold' ? 'Sold Price:' : 'Target Sale:'}
-                                                                </span>
-                                                                <span className={`text-sm font-black font-mono ${item.status === 'Sold' ? 'text-blue-400' : 'text-emerald-400'}`}>
-                                                                    Rs. {item.sellingPrice?.toLocaleString() || '0'}
-                                                                </span>
-                                                            </div>
-
-                                                            {item.status === 'Sold' && (
-                                                                <div className="flex items-center gap-3">
-                                                                    <span className="text-[10px] font-black text-blue-400/60 uppercase tracking-[0.1em]">Sale Date:</span>
-                                                                    <span className="text-xs font-black text-blue-300 font-mono">
-                                                                        {item.soldDate ? new Date(item.soldDate).toLocaleDateString('en-GB') : 'N/A'}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </td> */}
                                                     <td className="px-6 py-5">
                                                         <div className="flex flex-col gap-3">
                                                             <div className="flex flex-col gap-0.5">

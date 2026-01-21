@@ -410,3 +410,30 @@ a {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+@media print {
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    color: black !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+    margin: 1cm;
+  }
+}
+
+.print-only {
+  display: none;
+}
