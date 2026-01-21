@@ -57,7 +57,7 @@ const Sidebar = ({ isOpen, toggle }) => {
         { name: 'Employees', path: '/attendance?view=employee', icon: Users }
       ]
     },
-    { name: 'Warranty Claims', icon: FileText, path: '/claims' },
+    // { name: 'Warranty Claims', icon: FileText, path: '/claims' },
     { name: 'Payments', icon: DollarSign, path: '/payments' },
     { name: 'Reports', icon: LineChart, path: '/reports' },
   ];
@@ -238,7 +238,7 @@ const Header = ({ toggleSidebar }) => {
       if (search.includes('view=employee')) return { title: 'Employees', subtitle: 'Staff directory and records' };
       return { title: 'Attendance', subtitle: 'Daily presence and time logs' };
     }
-    if (path === '/claims') return { title: 'Warranty Claims', subtitle: 'Track and manage customer warranty & repair claims' };
+    // if (path === '/claims') return { title: 'Warranty Claims', subtitle: 'Track and manage customer warranty & repair claims' };
     if (path === '/payments') return { title: 'Payments', subtitle: 'Live payment logs and accounting' };
     if (path === '/reports') return { title: 'Reports', subtitle: 'Analytical insights and performance data' };
 
