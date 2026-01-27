@@ -20,7 +20,7 @@ import {
     CircleDollarSign,
     Receipt,
     History,
-    ChevronDown
+    ChevronsDown
 } from 'lucide-react';
 
 import { CustomerModel } from '../services/CustomerModel';
@@ -30,6 +30,7 @@ import { AuthModel } from '../services/AuthModel';
 
 const POS = () => {
     const currentUser = AuthModel.getCurrentUser();
+    console.log("Current User: ", currentUser);
 
     // Search States
     const [productSearchTerm, setProductSearchTerm] = useState('');
@@ -179,8 +180,10 @@ const POS = () => {
                 productName: combinedProductName,
                 brand: combinedBrand,
                 model: combinedModel,
-                price: primaryItem.price,
-                totalAmount: netAmount,
+                price: billAmount, // Gross Amount
+                discountAmount: discountAmount,
+                taxAmount: taxAmount,
+                totalAmount: netAmount, // Net Amount (Final)
                 advancePayment: paymentType === 'Installment' ? downPayment : netAmount,
                 durationMonths: paymentType === 'Installment' ? parseInt(installmentPlan) : 0,
                 installmentAmount: calculateMonthly(),
@@ -188,7 +191,7 @@ const POS = () => {
                 paymentType: paymentType,
                 paymentMethod: 'Cash', // Default for now
                 status: 'Active',
-                saleOfficer: currentUser?._id,
+                saleOfficer: currentUser?._id || currentUser?.id,
                 dealtBy: currentUser?.fullName
             };
 
@@ -197,7 +200,9 @@ const POS = () => {
             resetBoard();
             fetchHistory();
         } catch (error) {
-            alert('Error: ' + (error.response?.data?.message || 'Failed to save sale'));
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to save sale';
+            console.error('POS Save Error:', errorMessage);
+            alert('Error: ' + errorMessage);
         } finally {
             setSubmitting(false);
         }
@@ -435,9 +440,8 @@ const POS = () => {
                         {/* Summary Footer Grid - Compact Version */}
                         <div className="glass-card shadow-2xl p-2 space-y-4 border-white/10 bg-white/[0.01]">
                             {/* Summary Stats Cards - Tighter on Top */}
-                            <div className="grid grid-cols-5 gap-2">
+                            <div className="grid grid-cols-4 gap-2">
                                 {[
-                                    { label: 'Total Rows', value: cart.length, icon: Package, color: 'text-pink-400' },
                                     { label: 'T. Quantity', value: totalItems, icon: Plus, color: 'text-blue-400' },
                                     { label: 'Subtotal Val.', value: billAmount.toLocaleString(undefined, { minimumFractionDigits: 1 }), icon: CircleDollarSign, color: 'text-emerald-400' }
                                 ].map((stat, i) => (
@@ -447,26 +451,14 @@ const POS = () => {
                                         <p className="text-base font-black text-white truncate">{stat.value}</p>
                                     </div>
                                 ))}
-                                {paymentType === 'Full Cash' ? (
+                                {paymentType === 'Installment' ? (
                                     <>
-                                        <div className="space-y-1 bg-black/20 border border-white/5 rounded-xl p-2 focus-within:border-pink-500/50 transition-all">
-                                            <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Discount %</label>
-                                            <input type="number" value={discountPercent} onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-none outline-none text-base font-black text-pink-500 p-0" />
-                                        </div>
-                                        <div className="space-y-1 bg-black/20 border border-white/5 rounded-xl p-2 focus-within:border-indigo-500/50 transition-all">
-                                            <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Tax %</label>
-                                            <input type="number" value={taxPercent} onChange={(e) => setTaxPercent(parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-none outline-none text-base font-black text-indigo-400 p-0" />
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="space-y-1 bg-black/20 border border-white/5 rounded-xl p-2 focus-within:border-indigo-500/50 transition-all">
+                                        <div className="space-y-1 bg-black/20 border border-white/5 rounded-lg p-2 focus-within:border-indigo-500/50 transition-all">
                                             <label className="text-[9px] font-black text-indigo-400 uppercase tracking-widest pl-1">Plan Duration</label>
                                             <div className="relative group/sel">
                                                 <select value={installmentPlan} onChange={(e) => setInstallmentPlan(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm font-black text-white p-0 cursor-pointer appearance-none">
                                                     {['6 Months', '9 Months', '12 Months', '18 Months'].map(p => <option key={p} value={p} className="bg-[#1e293b]">{p}</option>)}
                                                 </select>
-                                                <ChevronDown size={10} className="absolute right-1 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none group-hover/sel:text-white" />
                                             </div>
                                         </div>
                                         <div className="space-y-1 bg-black/20 border border-white/5 rounded-xl p-2 focus-within:border-indigo-500/50 transition-all">
@@ -474,62 +466,74 @@ const POS = () => {
                                             <input type="number" value={downPayment} onChange={(e) => setDownPayment(parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-none outline-none text-base font-black text-white p-0" />
                                         </div>
                                     </>
+                                ) : (
+                                    <>
+                                        <div className="space-y-1 bg-black/20 border border-white/5 rounded-xl p-2 focus-within:border-pink-500/50 transition-all">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Discount %</label>
+                                            <input type="number" value={discountPercent} min={0} max={100} maxLength={2} onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || " ")} className="w-full bg-transparent border-none outline-none text-base font-black text-pink-500 p-0" />
+                                        </div>
+                                        <div className="space-y-1 bg-black/20 border border-white/5 rounded-xl p-2 focus-within:border-indigo-500/50 transition-all">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Tax %</label>
+                                            <input type="number" value={taxPercent} min={0} max={100} maxLength={2} onChange={(e) => setTaxPercent(parseFloat(e.target.value) || " ")} className="w-full bg-transparent border-none outline-none text-base font-black text-indigo-400 p-0" />
+                                        </div>
+                                    </>
                                 )}
                             </div>
 
                             {/* Financial Inputs & Mode Toggle - Bottom Row now */}
                             <div className="flex flex-wrap lg:flex-nowrap items-end gap-3 pt-2 border-t border-white/5">
-                                <div className="flex-1 grid grid-cols-3 gap-3">
+                                <div className="flex-1 grid grid-cols-3 gap-2">
                                     {paymentType === 'Full Cash' ? (
                                         <>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Tax Amt.</label>
-                                                <div className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-3 py-[10.5px] text-xs font-black text-indigo-400 font-mono">Rs {taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                            {/* <div className="bg-black/20 border border-white/5 rounded-xl p-2 transition-all flex flex-col justify-center">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 mb-1">Tax Amt.</label>
+                                                <div className="w-full text-[10px] font-black text-indigo-400 px-1">{taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                            </div> */}
+                                            <div className="bg-black/20 border border-white/5 rounded-xl p-2 transition-all flex flex-col justify-center relative overflow-hidden">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-indigo-600/10 opacity-50"></div>
+                                                <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest pl-1 mb-0.5 relative z-10">Tax Amt.</label>
+                                                <div className="w-full text-xl font-black text-white relative z-10 leading-none">
+                                                    <span className="text-[10px] opacity-60 mr-1">{taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                </div>
                                             </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Net Payable</label>
-                                                <div className="w-full bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl px-3 py-2.5 text-xs font-black text-white shadow-lg shadow-indigo-500/30 text-center flex flex-col justify-center min-h-[42px]">
-                                                    <span className="text-[8px] opacity-60 uppercase leading-none mb-0.5">Rs.</span>
-                                                    <span className="leading-none">{netAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                            <div className="bg-black/20 border border-white/5 rounded-xl p-2 transition-all flex flex-col justify-center relative overflow-hidden">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-indigo-600/10 opacity-50"></div>
+                                                <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest pl-1 mb-0.5 relative z-10">Net Payable</label>
+                                                <div className="w-full text-xl font-black text-white relative z-10 leading-none">
+                                                    <span className="text-[10px] opacity-60 mr-1">{netAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                 </div>
                                             </div>
                                         </>
                                     ) : (
                                         <>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[9px] font-black text-indigo-400 uppercase tracking-widest pl-1">Monthly Inst.</label>
-                                                <div className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-3 py-[10.5px] text-xs font-black text-white font-mono">
-                                                    Rs. {calculateMonthly().toLocaleString()}
+                                            <div className="bg-black/20 border border-white/5 rounded-xl p-2 transition-all flex flex-col justify-center">
+                                                <label className="text-[9px] font-black text-indigo-400 uppercase tracking-widest pl-1 mb-1">Monthly Inst.</label>
+                                                <div className="w-full text-xs font-black text-white font-mono px-1">
+                                                    {calculateMonthly().toLocaleString()}
                                                 </div>
                                             </div>
-                                            <div className="space-y-1.5">
+                                            <div className="bg-black/20 border border-white/5 rounded-xl p-2 transition-all flex flex-col justify-center">
                                                 <label className="text-[9px] font-black text-indigo-400 uppercase tracking-widest pl-1">Repayment Day</label>
-                                                <div className="relative group">
-                                                    <select value={repaymentDay} onChange={(e) => setRepaymentDay(parseInt(e.target.value))} className="w-full h-[42px] bg-white/[0.03] border border-white/5 rounded-xl px-4 text-sm font-black text-white outline-none cursor-pointer appearance-none group-hover:bg-white/[0.05] transition-all">
-                                                        {Array.from({ length: 28 }, (_, i) => i + 1).map(d => (
-                                                            <option key={d} value={d} className="bg-[#1e293b]">{d}{[1, 21, 31].includes(d) ? 'st' : [2, 22].includes(d) ? 'nd' : [3, 23].includes(d) ? 'rd' : 'th'}</option>
-                                                        ))}
-                                                    </select>
-                                                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none group-hover:text-white transition-colors" />
+                                                <div className="relative group/sel w-full">
+                                                    <input type="number" value={repaymentDay} min={1} max={31} maxLength={2} onChange={(e) => setRepaymentDay(parseInt(e.target.value))} className="w-full bg-transparent border-none outline-none text-sm font-black text-white p-0" />
                                                 </div>
                                             </div>
                                         </>
                                     )}
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1 text-emerald-500">Method</label>
-                                        <div className="relative group/meth">
-                                            <select value={paymentType} onChange={(e) => setPaymentType(e.target.value)} className="w-full h-[42px] bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 text-[10px] font-black text-emerald-400 outline-none appearance-none cursor-pointer group-hover/meth:bg-emerald-500/20 transition-all">
-                                                <option value="Full Cash" className="bg-[#1e293b]">FULL CASH</option>
-                                                <option value="Installment" className="bg-[#1e293b]">INSTALLMENT</option>
+                                    <div className="bg-black/20 border border-white/5 rounded-xl p-2 transition-all flex flex-col justify-center">
+                                        <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest pl-1">Method</label>
+                                        <div className="relative group/meth w-full">
+                                            <select value={paymentType} onChange={(e) => setPaymentType(e.target.value)} className="w-full bg-transparent border-none outline-none text-xs font-black text-white p-1 cursor-pointer appearance-none">
+                                                <option value="Full Cash" className="">FULL CASH</option>
+                                                <option value="Installment" className="">INSTALLMENT</option>
                                             </select>
-                                            <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500/60 pointer-events-none group-hover/meth:text-emerald-400" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="flex gap-2 h-[60px]">
                                     <button onClick={handleSave} disabled={submitting} className="px-8 bg-green-600 hover:bg-green-700 text-white font-black text-md uppercase tracking-wider rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0">
-                                        <Save size={18} /> {submitting ? 'PROCESSING...' : 'COMPLETE SALE'}
+                                        <Save size={18} /> {submitting ? 'PROCESSING...' : paymentType === 'Installment' ? 'COMPLETE INSTALLMENT' : 'COMPLETE SALE'}
                                     </button>
                                     <button onClick={handlePrint} className="bg-white/5 hover:bg-white/10 text-white w-12 rounded-xl flex items-center justify-center border border-white/10 transition-all active:scale-90">
                                         <Printer size={18} />

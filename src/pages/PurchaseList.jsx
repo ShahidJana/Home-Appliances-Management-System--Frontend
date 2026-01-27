@@ -21,7 +21,8 @@ import {
   Smartphone,
   Cpu,
   Hash,
-  Tag
+  Tag,
+  Calendar
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePurchaseController } from '../hooks/usePurchaseController';
@@ -49,21 +50,25 @@ const PurchaseList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const viewMode = searchParams.get('view') || 'stock';
 
-  const [filterStatus, setFilterStatus] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('Available');
+  const [filterVendor, setFilterVendor] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
+
+  const { vendors, fetchVendors } = useVendorController();
 
   const currentUser = AuthModel.getCurrentUser();
   const isAdmin = currentUser?.role === 'Admin';
 
   useEffect(() => {
     fetchPurchases();
+    fetchVendors();
     if (isAdmin) {
       fetchReport();
     }
-  }, [fetchPurchases, fetchReport, isAdmin]);
+  }, [fetchPurchases, fetchVendors, fetchReport, isAdmin]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
@@ -79,16 +84,20 @@ const PurchaseList = () => {
   };
 
   const filteredItems = items.filter(item => {
-    const matchesStatus = filterStatus === 'All' || item.status === filterStatus;
+    const matchesStatus = filterStatus === 'available' || item.status === filterStatus;
+    const matchesVendor = filterVendor === 'All' || item.vendor?._id === filterVendor;
     const searchLower = searchQuery.toLowerCase();
-    const matchesSearch =
-      item.productName?.toLowerCase().includes(searchLower) ||
-      item.model?.toLowerCase().includes(searchLower) ||
-      item.product_id?.toLowerCase().includes(searchLower) ||
-      item.imei1?.toLowerCase().includes(searchLower) ||
-      item.serialNumber?.toLowerCase().includes(searchLower);
-
-    return matchesStatus && matchesSearch;
+    const searchFields = [
+      'productName',
+      'model',
+      'product_id',
+      'imei1',
+      'serialNumber',
+    ];
+    const matchesSearch = searchFields.some((field) =>
+      String(item[field] || '').toLowerCase().includes(searchLower)
+    );
+    return matchesStatus && matchesVendor && matchesSearch;
   });
 
   return (
@@ -163,19 +172,31 @@ const PurchaseList = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="flex bg-black/20 p-1 rounded-xl gap-1">
-                {['All', 'Available', 'Sold', 'Defective'].map(status => (
-                  <button
-                    key={status}
-                    className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${filterStatus === status
-                      ? 'bg-[var(--primary)] text-white shadow-lg'
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
-                      }`}
-                    onClick={() => setFilterStatus(status)}
-                  >
-                    {status}
-                  </button>
-                ))}
+              <div className="flex items-center gap-3">
+                <div className="flex bg-black/20 p-1 rounded-xl gap-1">
+                  {['Available', 'Sold', 'All'].map(status => (
+                    <button
+                      key={status}
+                      className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${filterStatus === status
+                        ? 'bg-[var(--primary)] text-white shadow-lg'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        }`}
+                      onClick={() => setFilterStatus(status)}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+                <select
+                  value={filterVendor}
+                  onChange={(e) => setFilterVendor(e.target.value)}
+                  className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-[var(--primary)] transition-all min-w-[180px]"
+                >
+                  <option value="All">All Vendors</option>
+                  {vendors.map(vendor => (
+                    <option key={vendor._id} value={vendor._id}>{vendor.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -186,7 +207,7 @@ const PurchaseList = () => {
                     <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Product Details</th>
                     <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">PID / IMEI</th>
                     <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Vendor</th>
-                    {isAdmin && <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Purchase Price</th>}
+                    {isAdmin && <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Purchase Details</th>}
                     <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Status</th>
                     <th className="text-left p-4 md:p-6 text-xs text-slate-400 font-semibold bg-white/5 uppercase tracking-wider">Action</th>
                   </tr>
@@ -215,7 +236,12 @@ const PurchaseList = () => {
                         </div>
                       </td>
                       <td className="p-4 md:p-6 text-sm text-slate-300">{item.vendor?.name}</td>
-                      {isAdmin && <td className="p-4 md:p-6"><span className="font-semibold text-white">Rs. {item.purchasePrice?.toLocaleString()}</span></td>}
+                      {isAdmin && <td className="p-4 md:p-6 text-xs text-slate-400 font-medium">
+                        <div className="font-bold text-white mb-1">Rs. {item.purchasePrice?.toLocaleString()}</div>
+                        <div className="flex items-center gap-1.5 opacity-70">
+                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                        </div>
+                      </td>}
                       <td className="p-4 md:p-6">
                         <span className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider border ${item.status === 'Available' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                           item.status === 'Sold' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
@@ -263,7 +289,7 @@ const PurchaseList = () => {
                     <tr>
                       <td colSpan={isAdmin ? 6 : 5} className="p-12 text-center text-slate-500">
                         <Package size={48} className="mx-auto mb-4 opacity-20" />
-                        <p>No products found matching your search.</p>
+                        <p>No products found.</p>
                       </td>
                     </tr>
                   )}

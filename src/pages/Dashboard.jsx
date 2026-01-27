@@ -9,7 +9,11 @@ import {
   AlertCircle,
   ArrowUpRight,
   ChevronRight,
-  BarChart3
+  BarChart3,
+  Package,
+  Percent,
+  Tag,
+  Banknote
 } from 'lucide-react';
 import { useDashboardController } from '../hooks/useDashboardController';
 
@@ -18,24 +22,27 @@ const StatCard = ({ title, value, subValue, icon: Icon, color }) => (
     whileHover={{ y: -5 }}
     className="glass-card p-6 group relative overflow-hidden"
   >
-    <div className="flex justify-between items-center mb-5 relative z-10 gap-4">
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 duration-500 shrink-0 ${color === 'indigo' ? 'bg-indigo-500/20 text-indigo-400 shadow-indigo-500/10' :
-        color === 'pink' ? 'bg-pink-500/20 text-pink-400 shadow-pink-500/10' :
-          color === 'orange' ? 'bg-amber-500/20 text-amber-400 shadow-amber-500/10' :
-            'bg-red-500/20 text-red-400 shadow-red-500/10'
-        }`}>
-        <Icon size={24} />
-      </div>
+    <div className="flex justify-start items-center mb-4 relative z-10">
       <h3 className="text-2xl font-black bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent tracking-tight truncate">{value}</h3>
     </div>
-    <div className="relative z-10">
-      <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{title}</p>
-      {subValue && (
-        <div className="flex items-center gap-1.5 mt-2">
-          <div className={`w-1.5 h-1.5 rounded-full ${color === 'red' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`} />
-          <p className={`text-[10px] font-bold tracking-tight ${color === 'red' ? 'text-red-400' : 'text-emerald-400'}`}>{subValue}</p>
-        </div>
-      )}
+    <div className="relative z-10 flex items-center gap-4">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 duration-500 shrink-0 ${color === 'indigo' ? 'bg-indigo-500/20 text-indigo-400 shadow-indigo-500/10' :
+        color === 'pink' ? 'bg-pink-500/20 text-pink-400 shadow-pink-500/10' :
+          color === 'orange' ? 'bg-amber-500/20 text-amber-400 shadow-amber-500/10' :
+            color === 'emerald' ? 'bg-emerald-500/20 text-emerald-400 shadow-emerald-500/10' :
+              'bg-red-500/20 text-red-400 shadow-red-500/10'
+        }`}>
+        <Icon size={20} />
+      </div>
+      <div className="flex flex-col">
+        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest leading-none">{title}</p>
+        {subValue && (
+          <div className="flex items-center gap-1.5 mt-1.5">
+            <div className={`w-1.5 h-1.5 rounded-full ${color === 'red' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`} />
+            <p className={`text-[10px] font-bold tracking-tight ${color === 'red' ? 'text-red-400' : 'text-emerald-400'}`}>{subValue}</p>
+          </div>
+        )}
+      </div>
     </div>
     {/* Background Glow */}
     <div className={`absolute -bottom-10 -left-10 w-24 h-24 rounded-full blur-[50px] opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${color === 'indigo' ? 'bg-indigo-500' :
@@ -72,26 +79,37 @@ const Dashboard = () => {
       animate="show"
       className="flex flex-col gap-8"
     >
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div>
-        </div>
-        <button className="premium-btn">Generate Report</button>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
         <StatCard
-          title="Active Plans"
-          value={stats?.activePlans || '0'}
-          subValue="+12% from last month"
-          icon={TrendingUp}
+          title="Total Sales"
+          value={`Rs. ${stats?.totalSales?.toLocaleString() || '0'}`}
+          subValue="Gross revenue"
+          icon={Banknote}
           color="indigo"
+        />
+        <StatCard
+          title="Total Purchases"
+          value={`Rs. ${stats?.totalPurchases?.toLocaleString() || '0'}`}
+          subValue="Inventory investment"
+          icon={Package}
+          color="pink"
         />
         <StatCard
           title="Total Recovery"
           value={`Rs. ${stats?.totalRecovery?.toLocaleString() || '0'}`}
           subValue={`${stats?.todayRecovery?.count || 0} Installments today`}
           icon={CreditCard}
-          color="pink"
+          color="emerald"
+        />
+        <StatCard
+          title="Active Plans"
+          value={stats?.activePlans || '0'}
+          subValue="+12% from last month"
+          icon={TrendingUp}
+          color="indigo"
         />
         <StatCard
           title="Pending Commitments"
@@ -106,6 +124,22 @@ const Dashboard = () => {
           subValue="Requires immediate action"
           icon={AlertCircle}
           color="red"
+        />
+
+
+        <StatCard
+          title="Total Tax"
+          value={`Rs. ${stats?.totalTax?.toLocaleString() || '0'}`}
+          subValue="Calculated tax"
+          icon={Percent}
+          color="orange"
+        />
+        <StatCard
+          title="Total Discounts"
+          value={`Rs. ${stats?.totalDiscounts?.toLocaleString() || '0'}`}
+          subValue="Customer savings"
+          icon={Tag}
+          color="emerald"
         />
       </div>
 
@@ -136,9 +170,9 @@ const Dashboard = () => {
               <div key={tx._id} className="grid grid-cols-[2fr_1fr_1fr_1fr] px-4 py-4 items-center border-b border-white/5 hover:bg-white/[0.02] transition-colors last:border-0">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center font-bold text-xs">
-                    {(tx.customer?.fullName || 'W').charAt(0)}
+                    {(tx.customer?.fullName || tx.customerName || 'W').charAt(0)}
                   </div>
-                  <span className="text-sm font-medium">{tx.customer?.fullName || 'Walk-in'}</span>
+                  <span className="text-sm font-medium">{tx.customer?.fullName || tx.customerName || 'Walk-in'}</span>
                 </div>
                 <span className="text-sm font-bold text-white">Rs. {tx.amount?.toLocaleString()}</span>
                 <span className="text-sm text-slate-400">

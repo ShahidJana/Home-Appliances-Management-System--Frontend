@@ -220,16 +220,16 @@ const Attendance = () => {
         }
     };
 
-    const handleAutoMark = async () => {
-        if (window.confirm('Mark all remaining employees as Present for today?')) {
-            try {
-                await autoMarkAllPresent(date);
-                fetchDashboardStats();
-            } catch (err) {
-                alert(err.message);
-            }
-        }
-    };
+    // const handleAutoMark = async () => {
+    //     if (window.confirm('Mark all remaining employees as Present for today?')) {
+    //         try {
+    //             await autoMarkAllPresent(date);
+    //             fetchDashboardStats();
+    //         } catch (err) {
+    //             alert(err.message);
+    //         }
+    //     }
+    // };  
 
     const filteredEmployees = employees.filter(emp => {
         const matchesSearch = emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -488,7 +488,7 @@ const Attendance = () => {
                         </div>
                     ) : (
                         <div className="flex flex-col bg-slate-900/10 w-full overflow-x-auto">
-                            <div className={`min-w-[800px] grid ${viewMode === 'attendance' ? 'grid-cols-[100px_100px_150px_1fr]' : 'grid-cols-[250px_200px_150px_1fr]'} gap-4 p-4 md:p-6 border-b-2 border-white/10 text-xs font-bold uppercase text-indigo-400 tracking-wider items-center`}>
+                            <div className={`min-w-[800px] grid grid-cols-[100px_100px_150px_1fr] gap-4 p-4 md:p-6 border-b-2 border-white/10 text-xs font-bold uppercase text-indigo-400 tracking-wider items-center`}>
                                 <span>Employee</span>
                                 <span>Role</span>
                                 <span>{viewMode === 'attendance' ? 'Attendance' : 'Account Status'}</span>
@@ -500,7 +500,7 @@ const Attendance = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: i * 0.05 }}
-                                    className={`min-w-[800px] grid ${viewMode === 'attendance' ? 'grid-cols-[100px_100px_150px_1fr]' : 'grid-cols-[250px_200px_150px_1fr]'} gap-4 p-4 md:p-6 border-b border-white/5 items-center hover:bg-white/5 transition-colors`}
+                                    className={`min-w-[800px] grid grid-cols-[100px_100px_150px_1fr] gap-4 p-4 md:p-6 border-b border-white/5 items-center hover:bg-white/5 transition-colors`}
                                 >
                                     <div className="flex flex-col justify-center">
                                         <div className="font-semibold text-white text-sm">{emp.name}</div>

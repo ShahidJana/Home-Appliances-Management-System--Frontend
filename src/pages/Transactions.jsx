@@ -309,7 +309,7 @@ const Transactions = () => {
                                                 <span className="text-sm text-slate-200">{t.description || 'No description'}</span>
                                                 <span className="text-[10px] text-slate-500 flex items-center gap-1">
                                                     {t.category === 'Sale' || t.category === 'Installment' ? (
-                                                        <><User size={10} /> {t.customer?.fullName || 'Walk-in'}</>
+                                                        <><User size={10} /> {t.customer?.fullName || t.customerName || 'Walk-in'}</>
                                                     ) : t.category === 'Purchase' ? (
                                                         <><Truck size={10} /> {t.vendor?.name || 'Unknown Vendor'}</>
                                                     ) : t.category === 'Salary' ? (
