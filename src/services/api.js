@@ -1,10 +1,15 @@
 import axios from 'axios';
 
+const isDevelopment = import.meta.env.MODE === 'development';
+const API_URL = import.meta.env.VITE_API_URL;
+
 const api = axios.create({
-    baseURL: '/api',
+    // In development, use Vite proxy. In production, use the full URL if provided.
+    baseURL: isDevelopment ? '/api' : (API_URL ? `${API_URL}/api` : '/api'),
     headers: {
         'Content-Type': 'application/json'
-    }
+    },
+    withCredentials: true // Crucial for sending/receiving HTTP-only cookies
 });
 
 // Add Interceptor to attach JWT token
@@ -31,7 +36,9 @@ api.interceptors.response.use((response) => {
         try {
             console.log('Attempting silent token refresh...');
             // Call refresh endpoint (it uses the HTTP-only cookie)
-            const response = await axios.post('/api/auth/refresh');
+            // Use same baseURL logic as the main instance
+            const refreshUrl = isDevelopment ? '/api/auth/refresh' : (API_URL ? `${API_URL}/api/auth/refresh` : '/api/auth/refresh');
+            const response = await axios.post(refreshUrl, {}, { withCredentials: true });
             const { accessToken } = response.data;
 
             if (accessToken) {
