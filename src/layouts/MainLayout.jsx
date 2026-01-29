@@ -87,9 +87,14 @@ const Sidebar = ({ isOpen, toggle }) => {
     );
   };
 
-  const handleLogout = () => {
-    AuthModel.logout();
-    window.location.href = '/login';
+  const handleLogout = async () => {
+    try {
+      await AuthModel.logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      window.location.href = '/login';
+    }
   };
 
   return (
@@ -196,10 +201,10 @@ const Sidebar = ({ isOpen, toggle }) => {
       <div className="mt-5 p-4 bg-white/5 rounded-2xl flex items-center justify-between border border-white/5">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
-            {user?.fullName?.[0] || 'A'}
+            {user?.name?.[0] || 'A'}
           </div>
           <div className="flex flex-col">
-            <p className="text-sm font-bold text-white truncate max-w-[120px]">{user?.fullName || 'Admin'}</p>
+            <p className="text-sm font-bold text-white truncate max-w-[120px]">{user?.name || 'Admin'}</p>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide">{user?.role || 'Senior Officer'}</p>
           </div>
         </div>
